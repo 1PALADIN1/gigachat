@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	app "github.com/1PALADIN1/gigachat_server/internal"
+)
 
 func main() {
-	fmt.Println("Hello world!")
+	app.Run()
 }
