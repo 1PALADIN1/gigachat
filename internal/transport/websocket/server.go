@@ -2,8 +2,17 @@ package websocket
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
 type WebSocketServer struct {
 	port int
@@ -17,14 +26,29 @@ func NewServer(port int) *WebSocketServer {
 	return &server
 }
 
-func (w *WebSocketServer) Run() error {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello world! Path: %s", r.URL.Path)
-	})
-
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", w.port), nil); err != nil {
+func (srv *WebSocketServer) Run() error {
+	http.HandleFunc("/", srv.handler)
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", srv.port), nil); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (srv *WebSocketServer) handler(w http.ResponseWriter, r *http.Request) {
+	connection, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("Error in connection:", err)
+		return
+	}
+	defer connection.Close()
+
+	for {
+		mt, message, err := connection.ReadMessage()
+		if err != nil || mt == websocket.CloseMessage {
+			break
+		}
+
+		log.Println(string(message))
+	}
 }
