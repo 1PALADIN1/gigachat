@@ -17,12 +17,12 @@ var (
 )
 
 type Server interface {
-	Run() error
+	Start() error
 }
 
 func Run() {
 	server = websocket.NewServer(defaultPort)
-	if err := server.Run(); err != nil {
+	if err := server.Start(); err != nil {
 		log.Fatal(err)
 	}
 }

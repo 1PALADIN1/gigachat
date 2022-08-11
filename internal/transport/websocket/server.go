@@ -26,7 +26,7 @@ func NewServer(port int) *WebSocketServer {
 	return &server
 }
 
-func (srv *WebSocketServer) Run() error {
+func (srv *WebSocketServer) Start() error {
 	http.HandleFunc("/", srv.handler)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", srv.port), nil); err != nil {
 		return err
@@ -50,5 +50,8 @@ func (srv *WebSocketServer) handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		log.Println(string(message))
+
+		greeting := fmt.Sprintf("Hello from server, %v!", connection.RemoteAddr())
+		connection.WriteMessage(1, []byte(greeting))
 	}
 }
