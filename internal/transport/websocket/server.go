@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/1PALADIN1/gigachat_server/internal/service"
 	"github.com/gorilla/websocket"
 )
 
@@ -12,6 +13,8 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
 }
 
 type WebSocketServer struct {
@@ -27,7 +30,9 @@ func NewServer(port int) *WebSocketServer {
 }
 
 func (srv *WebSocketServer) Start() error {
-	http.HandleFunc("/", srv.handler)
+	log.Println("Starting WebSocket server")
+
+	http.HandleFunc("/", srv.mainHandler)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", srv.port), nil); err != nil {
 		return err
 	}
@@ -35,23 +40,13 @@ func (srv *WebSocketServer) Start() error {
 	return nil
 }
 
-func (srv *WebSocketServer) handler(w http.ResponseWriter, r *http.Request) {
+func (srv *WebSocketServer) mainHandler(w http.ResponseWriter, r *http.Request) {
 	connection, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Error in connection:", err)
 		return
 	}
-	defer connection.Close()
 
-	for {
-		mt, message, err := connection.ReadMessage()
-		if err != nil || mt == websocket.CloseMessage {
-			break
-		}
-
-		log.Println(string(message))
-
-		greeting := fmt.Sprintf("Hello from server, %v!", connection.RemoteAddr())
-		connection.WriteMessage(1, []byte(greeting))
-	}
+	log.Println("Client", connection.RemoteAddr(), "connected!")
+	service.StartUserSession(connection)
 }
