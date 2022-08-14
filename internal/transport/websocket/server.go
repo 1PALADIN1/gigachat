@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/1PALADIN1/gigachat_server/internal/service"
+	"github.com/1PALADIN1/gigachat_server/internal/transport/websocket/handlers"
 	"github.com/gorilla/websocket"
 )
 
@@ -30,9 +30,9 @@ func NewServer(port int) *WebSocketServer {
 }
 
 func (srv *WebSocketServer) Start() error {
-	log.Println("Starting WebSocket server")
+	log.Println("Starting WebSocket server, port", srv.port)
 
-	http.HandleFunc("/", srv.mainHandler)
+	http.HandleFunc("/ws", srv.wsHandler)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", srv.port), nil); err != nil {
 		return err
 	}
@@ -40,13 +40,12 @@ func (srv *WebSocketServer) Start() error {
 	return nil
 }
 
-func (srv *WebSocketServer) mainHandler(w http.ResponseWriter, r *http.Request) {
+func (srv *WebSocketServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 	connection, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Error in connection:", err)
 		return
 	}
 
-	log.Println("Client", connection.RemoteAddr(), "connected!")
-	service.StartUserSession(connection)
+	go handlers.HandleUserMessages(connection)
 }
