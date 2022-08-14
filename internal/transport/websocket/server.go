@@ -18,21 +18,23 @@ var upgrader = websocket.Upgrader{
 }
 
 type WebSocketServer struct {
-	port int
+	port           int
+	handlerAddress string
 }
 
-func NewServer(port int) *WebSocketServer {
+func NewServer(port int, handlerAddress string) *WebSocketServer {
 	server := WebSocketServer{
-		port: port,
+		port:           port,
+		handlerAddress: handlerAddress,
 	}
 
 	return &server
 }
 
 func (srv *WebSocketServer) Start() error {
-	log.Println("Starting WebSocket server, port", srv.port)
+	log.Println("Starting WebSocket server, port:", srv.port, "address:", srv.handlerAddress)
 
-	http.HandleFunc("/ws", srv.wsHandler) //TODO: адрес хендлера вынести в конфиг
+	http.HandleFunc(srv.handlerAddress, srv.wsHandler)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", srv.port), nil); err != nil {
 		return err
 	}

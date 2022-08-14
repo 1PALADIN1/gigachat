@@ -8,20 +8,23 @@ import (
 	"github.com/1PALADIN1/gigachat_server/internal/transport/websocket"
 )
 
-const (
-	defaultPort = 8000 //TODO: вынести в конфиг
-)
+type Server interface {
+	Start() error
+}
+
+type Config struct {
+	Server struct {
+		Port      int
+		WsAddress string `yaml:"ws-address"`
+	}
+}
 
 var (
 	server Server
 )
 
-type Server interface {
-	Start() error
-}
-
-func Run() {
-	server = websocket.NewServer(defaultPort)
+func Run(config *Config) {
+	server = websocket.NewServer(config.Server.Port, config.Server.WsAddress)
 	if err := server.Start(); err != nil {
 		log.Fatal(err)
 	}

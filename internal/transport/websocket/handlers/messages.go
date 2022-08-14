@@ -28,7 +28,7 @@ func HandleUserMessages(connection *websocket.Conn) {
 			log.Println("Connection closed ", connection.RemoteAddr())
 			break
 		}
-		
+
 		rawMsg := Message{
 			User:     connection.RemoteAddr().String(),
 			SendTime: time.Now().Format("2006-02-01 15:04"),
