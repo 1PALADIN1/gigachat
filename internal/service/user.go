@@ -33,12 +33,11 @@ func RemoveUserFromActiveList(connection *websocket.Conn) {
 	mx.Unlock()
 }
 
-func SendMessageToAllUsers(messageType int, message string) {
-	log.Println("Message type", messageType, "-> message:", message)
+func SendMessageToAllUsers(messageType int, message []byte) {
 	mx.Lock()
 
 	for conn := range activeUsers {
-		conn.WriteMessage(messageType, []byte(message))
+		conn.WriteMessage(messageType, message)
 	}
 
 	mx.Unlock()

@@ -32,7 +32,7 @@ func NewServer(port int) *WebSocketServer {
 func (srv *WebSocketServer) Start() error {
 	log.Println("Starting WebSocket server, port", srv.port)
 
-	http.HandleFunc("/ws", srv.wsHandler)
+	http.HandleFunc("/ws", srv.wsHandler) //TODO: адрес хендлера вынести в конфиг
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", srv.port), nil); err != nil {
 		return err
 	}
