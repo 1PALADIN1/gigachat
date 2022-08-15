@@ -1,3 +1,6 @@
 server:
-  port: 8000
-  ws-address: /ws
+  ws:
+    port: 8000
+    handler: /ws
+  rest:
+    port: 8001

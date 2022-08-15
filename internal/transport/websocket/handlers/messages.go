@@ -15,8 +15,7 @@ type Message struct {
 	Text     string `json:"text"`
 }
 
-func HandleUserMessages(connection *websocket.Conn) {
-	defer connection.Close()
+func (h *Handler) handleUserMessages(connection *websocket.Conn) {
 	defer service.RemoveUserFromActiveList(connection)
 
 	log.Println("Client", connection.RemoteAddr(), "connected!")

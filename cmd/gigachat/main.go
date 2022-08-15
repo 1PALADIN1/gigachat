@@ -12,6 +12,15 @@ import (
 const defaultConfigPath = "configs/server_config.yaml"
 
 func main() {
+	config, err := parseConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	app.Run(config)
+}
+
+func parseConfig() (*app.Config, error) {
 	flag.Parse()
 
 	configPath := defaultConfigPath
@@ -21,11 +30,10 @@ func main() {
 
 	configText, err := ioutil.ReadFile(configPath)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	config := &app.Config{}
 	yaml.Unmarshal(configText, config)
-
-	app.Run(config)
+	return config, nil
 }
