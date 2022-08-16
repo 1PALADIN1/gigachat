@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 import (
 	"encoding/json"
@@ -15,7 +15,7 @@ type Message struct {
 	Text     string `json:"text"`
 }
 
-func (h *Handler) handleUserMessages(connection *websocket.Conn) {
+func handleUserMessages(connection *websocket.Conn) {
 	defer service.RemoveUserFromActiveList(connection)
 
 	log.Println("Client", connection.RemoteAddr(), "connected!")

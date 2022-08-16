@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/1PALADIN1/gigachat_server/internal/service"
+
 	"github.com/1PALADIN1/gigachat_server/internal/transport/rest"
 	"github.com/1PALADIN1/gigachat_server/internal/transport/websocket"
 )
@@ -26,9 +28,14 @@ type Config struct {
 			Port int
 		}
 	}
+	Token struct {
+		SigningKey string `yaml:"signing-key"`
+	}
 }
 
 func Run(config *Config) {
+	service.Init(config.Token.SigningKey)
+
 	wg := new(sync.WaitGroup)
 	serverConfig := config.Server
 

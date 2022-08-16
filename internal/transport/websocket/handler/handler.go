@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 import (
 	"log"
@@ -6,9 +6,6 @@ import (
 
 	"github.com/gorilla/websocket"
 )
-
-type Handler struct {
-}
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -18,7 +15,7 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func (h *Handler) DefaultHandler(w http.ResponseWriter, r *http.Request) {
+func DefaultHandler(w http.ResponseWriter, r *http.Request) {
 	connection, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Error in connection:", err)
@@ -27,6 +24,6 @@ func (h *Handler) DefaultHandler(w http.ResponseWriter, r *http.Request) {
 
 	go func() {
 		defer connection.Close()
-		h.handleUserMessages(connection)
+		handleUserMessages(connection)
 	}()
 }
