@@ -7,6 +7,7 @@ import (
 
 type Authorization interface {
 	SignUpUser(user entity.User) (int, error)
+	GenerateToken(username, password string) (string, error)
 }
 
 type Service struct {
@@ -16,10 +17,11 @@ type Service struct {
 type AuthConfig struct {
 	SigningKey       string
 	PasswordHashSalt string
+	TokenTTL         int
 }
 
 func NewService(repo *repository.Repository, authConfig AuthConfig) *Service {
 	return &Service{
-		Authorization: NewAuthService(repo.Authorization, authConfig.SigningKey, authConfig.PasswordHashSalt),
+		Authorization: NewAuthService(repo.Authorization, authConfig.SigningKey, authConfig.PasswordHashSalt, authConfig.TokenTTL),
 	}
 }

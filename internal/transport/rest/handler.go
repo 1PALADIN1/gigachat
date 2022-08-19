@@ -18,5 +18,6 @@ func NewHandler(service *service.Service) *Handler {
 
 func (h *Handler) SetupRoutes(mux *http.ServeMux) {
 	//auth
-	mux.HandleFunc("/api/sign-up", h.singUpUser)
+	mux.HandleFunc("/api/auth/sign-up", h.singUpUser) //POST
+	mux.HandleFunc("/api/auth/sign-in", h.signInUser) //POST
 }

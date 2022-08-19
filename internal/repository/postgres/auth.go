@@ -17,6 +17,7 @@ func NewAuthPostgres(db *sqlx.DB) *AuthPostgres {
 	return &AuthPostgres{db}
 }
 
+// Создаёт нового пользователя в БД
 func (r *AuthPostgres) CreateUser(user entity.User) (int, error) {
 	var id int
 	query := fmt.Sprintf("INSERT INTO %s (username, password_hash) VALUES ($1, $2) RETURNING id", usersTable)
@@ -33,4 +34,12 @@ func (r *AuthPostgres) CreateUser(user entity.User) (int, error) {
 	}
 
 	return id, nil
+}
+
+// Пытыет получить пользователся по указанному логину и хешу пароля
+func (r *AuthPostgres) GetUser(username, password string) (entity.User, error) {
+	var user entity.User
+	query := fmt.Sprintf("SELECT id FROM %s WHERE username=$1 AND password_hash=$2", usersTable)
+	err := r.db.Get(&user, query, username, password)
+	return user, err
 }

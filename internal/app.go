@@ -27,6 +27,7 @@ type Config struct {
 	Auth struct {
 		SigningKey       string
 		PasswordHashSalt string
+		TokenTTL         int
 	}
 	DB struct {
 		Host     string
@@ -48,6 +49,7 @@ func Run(config *Config) {
 	service := service.NewService(repo, service.AuthConfig{
 		SigningKey:       config.Auth.SigningKey,
 		PasswordHashSalt: config.Auth.PasswordHashSalt,
+		TokenTTL:         config.Auth.TokenTTL,
 	})
 
 	server := setupServer(config, service)

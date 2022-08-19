@@ -26,6 +26,7 @@ func main() {
 	//auth
 	config.Auth.SigningKey = os.Getenv("SINGING_KEY")
 	config.Auth.PasswordHashSalt = os.Getenv("PASSWORD_HASH_SALT")
+	config.Auth.TokenTTL = viper.GetInt("auth.token-ttl")
 	//db
 	config.DB.Host = viper.GetString("db.host")
 	config.DB.Port = viper.GetInt("db.port")
