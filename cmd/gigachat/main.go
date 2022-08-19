@@ -18,11 +18,21 @@ func main() {
 		log.Fatalf("error loading env variables: %s", err.Error())
 	}
 
-	config := app.Config{}
+	config := new(app.Config)
+	//server
 	config.Server.Port = viper.GetInt("server.port")
 	config.Server.ReadTimeout = viper.GetInt("server.read-timeout")
 	config.Server.WriteTimeout = viper.GetInt("server.write-timeout")
+	//auth
 	config.Auth.SigningKey = os.Getenv("SINGING_KEY")
+	config.Auth.PasswordHashSalt = os.Getenv("PASSWORD_HASH_SALT")
+	//db
+	config.DB.Host = viper.GetString("db.host")
+	config.DB.Port = viper.GetInt("db.port")
+	config.DB.User = viper.GetString("db.user")
+	config.DB.Password = os.Getenv("DB_PASSWORD")
+	config.DB.DBName = viper.GetString("db.db-name")
+	config.DB.SSLMode = viper.GetString("db.ssl-mode")
 
 	app.Run(config)
 }
