@@ -1,4 +1,4 @@
-package handler
+package rest
 
 import (
 	"encoding/json"
@@ -18,8 +18,8 @@ func authUser(w http.ResponseWriter, r *http.Request) {
 
 	token, err := service.GenerateToken()
 	if err != nil {
-		log.Println("error generating token:", err)
-		resp.Error = "Token is not generated"
+		log.Println("Error generating token:", err)
+		resp.Error = "token is not generated"
 		sendTokenResponse(resp, w, http.StatusUnauthorized)
 		return
 	}

@@ -1,9 +1,0 @@
-server:
-  ws:
-    port: 8000
-    handler: /ws
-  rest:
-    port: 8001
-
-token:
-  signing-key: super_secret_key_super_secret_key_super_secret_key

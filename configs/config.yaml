@@ -1,0 +1,4 @@
+server:
+  port: 8000
+  read-timeout: 10
+  write-timeout: 10

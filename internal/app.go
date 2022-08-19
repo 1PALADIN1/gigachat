@@ -5,64 +5,39 @@ package internal
 import (
 	"log"
 	"net/http"
-	"sync"
-
-	"github.com/1PALADIN1/gigachat_server/internal/service"
 
 	"github.com/1PALADIN1/gigachat_server/internal/transport/rest"
 	"github.com/1PALADIN1/gigachat_server/internal/transport/websocket"
 )
 
-type ServerInfo struct {
-	server *http.Server
-	name   string
-}
-
 type Config struct {
 	Server struct {
-		Ws struct {
-			Port    int
-			Handler string
-		}
-		Rest struct {
-			Port int
-		}
+		Port         int
+		ReadTimeout  int
+		WriteTimeout int
 	}
-	Token struct {
-		SigningKey string `yaml:"signing-key"`
+	Auth struct {
+		SigningKey string
 	}
 }
 
-func Run(config *Config) {
-	service.Init(config.Token.SigningKey)
+func Run(config Config) {
+	mux := http.NewServeMux()
+	wsHandler := websocket.NewHandler()
+	wsHandler.SetupRoutes(mux)
 
-	wg := new(sync.WaitGroup)
-	serverConfig := config.Server
+	restHandler := rest.NewHandler()
+	restHandler.SetupRoutes(mux)
 
-	servers := []ServerInfo{
-		ServerInfo{
-			websocket.NewServer(serverConfig.Ws.Port, serverConfig.Ws.Handler),
-			"WebSocket",
-		},
-		ServerInfo{
-			rest.NewServer(serverConfig.Rest.Port),
-			"REST",
-		},
-	}
+	server := NewServer(ServerConfig{
+		Port:           config.Server.Port,
+		Handler:        mux,
+		MaxHeaderBytes: 1 << 20, //1MB
+		ReadTimeout:    config.Server.ReadTimeout,
+		WriteTimeout:   config.Server.WriteTimeout,
+	})
 
-	for _, server := range servers {
-		wg.Add(1)
-		go startServer(server.name, server.server, wg)
-	}
-
-	wg.Wait()
-}
-
-func startServer(name string, server *http.Server, wg *sync.WaitGroup) {
-	defer wg.Done()
-
-	log.Printf("Starting %s server at addr: %v\n", name, server.Addr)
-	if err := server.ListenAndServe(); err != nil {
+	if err := server.Start(); err != nil {
 		log.Fatal(err)
 	}
 }

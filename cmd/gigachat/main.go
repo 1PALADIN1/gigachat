@@ -1,39 +1,35 @@
 package main
 
 import (
-	"flag"
-	"io/ioutil"
 	"log"
+	"os"
 
 	app "github.com/1PALADIN1/gigachat_server/internal"
-	"gopkg.in/yaml.v3"
+	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 )
 
-const defaultConfigPath = "configs/server_config.yaml"
-
 func main() {
-	config, err := parseConfig()
-	if err != nil {
-		log.Fatal(err)
+	if err := initConfig(); err != nil {
+		log.Fatalf("error initializing configs: %s", err.Error())
 	}
+
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("error loading env variables: %s", err.Error())
+	}
+
+	config := app.Config{}
+	config.Server.Port = viper.GetInt("server.port")
+	config.Server.ReadTimeout = viper.GetInt("server.read-timeout")
+	config.Server.WriteTimeout = viper.GetInt("server.write-timeout")
+	config.Auth.SigningKey = os.Getenv("SINGING_KEY")
 
 	app.Run(config)
 }
 
-func parseConfig() (*app.Config, error) {
-	flag.Parse()
-
-	configPath := defaultConfigPath
-	if len(flag.Args()) != 0 {
-		configPath = flag.Args()[0]
-	}
-
-	configText, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		return nil, err
-	}
-
-	config := &app.Config{}
-	yaml.Unmarshal(configText, config)
-	return config, nil
+func initConfig() error {
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("configs")
+	viper.SetConfigName("config")
+	return viper.ReadInConfig()
 }
