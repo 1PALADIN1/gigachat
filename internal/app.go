@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/1PALADIN1/gigachat_server/internal/service"
+
 	"github.com/1PALADIN1/gigachat_server/internal/repository"
 
 	"github.com/jmoiron/sqlx"
@@ -42,9 +44,13 @@ func Run(config *Config) {
 		log.Fatalf("error connecting to database: %s", err.Error())
 	}
 
-	_ = repository.NewRepository(db)
+	repo := repository.NewRepository(db)
+	service := service.NewService(repo, service.AuthConfig{
+		SigningKey:       config.Auth.SigningKey,
+		PasswordHashSalt: config.Auth.PasswordHashSalt,
+	})
 
-	server := setupServer(config)
+	server := setupServer(config, service)
 	if err := server.Start(); err != nil {
 		log.Fatal(err)
 	}
@@ -67,12 +73,12 @@ func setupDB(config *Config) (*sqlx.DB, error) {
 	return db, err
 }
 
-func setupServer(config *Config) *Server {
+func setupServer(config *Config, service *service.Service) *Server {
 	mux := http.NewServeMux()
 	wsHandler := websocket.NewHandler()
 	wsHandler.SetupRoutes(mux)
 
-	restHandler := rest.NewHandler()
+	restHandler := rest.NewHandler(service)
 	restHandler.SetupRoutes(mux)
 
 	return NewServer(ServerConfig{

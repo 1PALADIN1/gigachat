@@ -2,42 +2,40 @@ package rest
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
-	"github.com/1PALADIN1/gigachat_server/internal/service"
+	"github.com/1PALADIN1/gigachat_server/internal/entity"
+
+	"github.com/1PALADIN1/gigachat_server/internal/transport/helper"
 )
 
-type tokenResponse struct {
-	Error       string `json:"error"`
-	AccessToken string `json:"access_token"`
-}
+// Хендлер регистрации нового пользователя
+func (h *Handler) singUpUser(w http.ResponseWriter, r *http.Request) {
+	if !helper.ValidateRequestMethod(w, r, http.MethodPost) {
+		return
+	}
+	defer r.Body.Close()
 
-func authUser(w http.ResponseWriter, r *http.Request) {
-	resp := &tokenResponse{}
-
-	token, err := service.GenerateToken()
+	var input entity.User
+	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		log.Println("Error generating token:", err)
-		resp.Error = "token is not generated"
-		sendTokenResponse(resp, w, http.StatusUnauthorized)
+		helper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	resp.AccessToken = token
-	sendTokenResponse(resp, w, http.StatusOK)
-}
-
-func sendTokenResponse(resp *tokenResponse, w http.ResponseWriter, statusCode int) {
-	jsonString, err := json.Marshal(resp)
-	if err != nil {
-		log.Println("error marshaling json:", err)
+	if err := input.Validate(); err != nil {
+		helper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	w.WriteHeader(statusCode)
-	_, err = w.Write(jsonString)
+	id, err := h.service.SignUpUser(input)
 	if err != nil {
-		log.Println("error writing response:", err)
+		helper.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
 	}
+
+	helper.SendResponse(w, http.StatusOK,
+		map[string]interface{}{
+			"id": id,
+		})
 }

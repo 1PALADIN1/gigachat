@@ -16,6 +16,11 @@ type Config struct {
 	SSLMode  string
 }
 
+const (
+	//tables
+	usersTable = "users"
+)
+
 func NewDB(config Config) (*sqlx.DB, error) {
 	connString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode)
@@ -29,5 +34,5 @@ func NewDB(config Config) (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	return nil, err
+	return db, err
 }
