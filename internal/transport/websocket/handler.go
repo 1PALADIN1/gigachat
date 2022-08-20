@@ -4,10 +4,13 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/1PALADIN1/gigachat_server/internal/service"
+	"github.com/1PALADIN1/gigachat_server/internal/transport/helper"
 	"github.com/gorilla/websocket"
 )
 
 type Handler struct {
+	service *service.Service
 }
 
 var upgrader = websocket.Upgrader{
@@ -18,8 +21,10 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(service *service.Service) *Handler {
+	return &Handler{
+		service: service,
+	}
 }
 
 func (h *Handler) SetupRoutes(mux *http.ServeMux) {
@@ -27,6 +32,11 @@ func (h *Handler) SetupRoutes(mux *http.ServeMux) {
 }
 
 func (h *Handler) setupWsConnection(w http.ResponseWriter, r *http.Request) {
+	_, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
+	if !ok {
+		return
+	}
+
 	connection, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("Error in connection:", err)

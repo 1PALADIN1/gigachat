@@ -77,7 +77,8 @@ func setupDB(config *Config) (*sqlx.DB, error) {
 
 func setupServer(config *Config, service *service.Service) *Server {
 	mux := http.NewServeMux()
-	wsHandler := websocket.NewHandler()
+
+	wsHandler := websocket.NewHandler(service)
 	wsHandler.SetupRoutes(mux)
 
 	restHandler := rest.NewHandler(service)

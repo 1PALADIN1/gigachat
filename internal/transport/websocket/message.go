@@ -30,7 +30,7 @@ func (h *Handler) handleUserMessages(connection *websocket.Conn) {
 
 		rawMsg := Message{
 			User:     connection.RemoteAddr().String(),
-			SendTime: time.Now().Format("2006-02-01 15:04"),
+			SendTime: time.Now().Format("2006-01-02 15:04"),
 			Text:     string(message),
 		}
 
