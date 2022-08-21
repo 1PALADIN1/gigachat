@@ -4,62 +4,52 @@ import (
 	"log"
 	"sync"
 
+	"github.com/1PALADIN1/gigachat_server/internal/entity"
+	"github.com/1PALADIN1/gigachat_server/internal/repository"
 	"github.com/gorilla/websocket"
 )
 
-var (
+type UserService struct {
 	mx          sync.Mutex
-	activeUsers map[*websocket.Conn]bool = make(map[*websocket.Conn]bool)
-)
-
-func StartUserSession(connection *websocket.Conn) {
-	addUserInList(connection)
-	go handleUserMessages(connection)
+	activeUsers map[*websocket.Conn]bool
+	repo        repository.User
 }
 
-func handleUserMessages(connection *websocket.Conn) {
-	defer connection.Close()
-	defer removeUserFromList(connection)
-
-	for {
-		messageType, message, err := connection.ReadMessage()
-		if err != nil || messageType == websocket.CloseMessage {
-			log.Println("Connection closed ", connection.RemoteAddr())
-			break
-		}
-
-		sendMessageToAllUsers(messageType, string(message))
+func NewUserService(repo repository.User) *UserService {
+	return &UserService{
+		repo:        repo,
+		activeUsers: make(map[*websocket.Conn]bool),
 	}
 }
 
-func addUserInList(connection *websocket.Conn) {
-	mx.Lock()
-
-	activeUsers[connection] = true
-	log.Println("Set user active", connection.RemoteAddr(), "active users:", len(activeUsers))
-
-	mx.Unlock()
+func (s *UserService) GetUserById(id int) (entity.User, error) {
+	return s.repo.GetUserById(id)
 }
 
-func removeUserFromList(connection *websocket.Conn) {
-	mx.Lock()
+func (s *UserService) AddUserInActiveList(connection *websocket.Conn) {
+	defer s.mx.Unlock()
+	s.mx.Lock()
 
-	_, ok := activeUsers[connection]
+	s.activeUsers[connection] = true
+	log.Println("Set user active", connection.RemoteAddr(), "active users:", len(s.activeUsers))
+}
+
+func (s *UserService) RemoveUserFromActiveList(connection *websocket.Conn) {
+	defer s.mx.Unlock()
+	s.mx.Lock()
+
+	_, ok := s.activeUsers[connection]
 	if ok {
-		delete(activeUsers, connection)
-		log.Println("Remove user from active list", connection.RemoteAddr(), "active users:", len(activeUsers))
+		delete(s.activeUsers, connection)
+		log.Println("Remove user from active list", connection.RemoteAddr(), "active users:", len(s.activeUsers))
 	}
-
-	mx.Unlock()
 }
 
-func sendMessageToAllUsers(messageType int, message string) {
-	log.Println("Message type", messageType, "-> message:", message)
-	mx.Lock()
+func (s *UserService) SendMessageToAllUsers(messageType int, message []byte) {
+	defer s.mx.Unlock()
+	s.mx.Lock()
 
-	for conn := range activeUsers {
-		conn.WriteMessage(messageType, []byte(message))
+	for conn := range s.activeUsers {
+		conn.WriteMessage(messageType, message)
 	}
-
-	mx.Unlock()
 }

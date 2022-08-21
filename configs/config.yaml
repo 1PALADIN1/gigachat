@@ -1,0 +1,14 @@
+server:
+  port: 8000
+  read-timeout: 10
+  write-timeout: 10
+
+auth:
+  token-ttl: 14400
+
+db:
+  host: localhost 
+  port: 5432
+  user: postgres
+  db-name: postgres
+  ssl-mode: disable
