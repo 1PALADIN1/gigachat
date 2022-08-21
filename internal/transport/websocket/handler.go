@@ -32,7 +32,7 @@ func (h *Handler) SetupRoutes(mux *http.ServeMux) {
 }
 
 func (h *Handler) setupWsConnection(w http.ResponseWriter, r *http.Request) {
-	_, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
+	userId, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
 	if !ok {
 		return
 	}
@@ -45,6 +45,6 @@ func (h *Handler) setupWsConnection(w http.ResponseWriter, r *http.Request) {
 
 	go func() {
 		defer connection.Close()
-		h.handleUserMessages(connection)
+		h.handleUserMessages(connection, userId)
 	}()
 }
