@@ -22,6 +22,8 @@ func NewUserService(repo repository.User) *UserService {
 	}
 }
 
+// Ищет пользователя по id
+// Возвращает структуру пользователя в случае успеха
 func (s *UserService) GetUserById(id int) (entity.User, error) {
 	return s.repo.GetUserById(id)
 }

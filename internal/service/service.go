@@ -19,9 +19,14 @@ type User interface {
 	SendMessageToAllUsers(messageType int, message []byte)
 }
 
+type Chat interface {
+	GetOrCreateChat(chat entity.Chat) (int, error)
+}
+
 type Service struct {
 	Authorization
 	User
+	Chat
 }
 
 type AuthConfig struct {
@@ -34,5 +39,6 @@ func NewService(repo *repository.Repository, authConfig AuthConfig) *Service {
 	return &Service{
 		Authorization: NewAuthService(repo.Authorization, authConfig.SigningKey, authConfig.PasswordHashSalt, authConfig.TokenTTL),
 		User:          NewUserService(repo.User),
+		Chat:          NewChatService(repo.Chat, repo.User),
 	}
 }

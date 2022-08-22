@@ -15,14 +15,21 @@ type User interface {
 	GetUserById(id int) (entity.User, error)
 }
 
+type Chat interface {
+	GetChatIdByUsers(userIds []int) (int, bool, error)
+	CreateChat(chat entity.Chat) (int, error)
+}
+
 type Repository struct {
 	Authorization
 	User
+	Chat
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: postgres.NewAuthPostgres(db),
 		User:          postgres.NewUserPostgres(db),
+		Chat:          postgres.NewChatPostgres(db),
 	}
 }

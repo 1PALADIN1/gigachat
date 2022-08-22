@@ -54,7 +54,7 @@ func (h *Handler) signInUser(w http.ResponseWriter, r *http.Request) {
 	var input entity.User
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		helper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		helper.SendErrorResponse(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
