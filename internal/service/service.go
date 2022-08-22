@@ -21,6 +21,7 @@ type User interface {
 
 type Chat interface {
 	GetOrCreateChat(chat entity.Chat) (int, error)
+	GetAllChats(userId int) ([]entity.Chat, error)
 }
 
 type Service struct {

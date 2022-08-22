@@ -7,10 +7,10 @@ import (
 )
 
 type Chat struct {
-	Id          int    `json:"-" db:"id"`
+	Id          int    `json:"id" db:"id"`
 	Title       string `json:"title" db:"title"`
 	Description string `json:"description" db:"description"`
-	UserIds     []int  `json:"user_ids"`
+	UserIds     []int  `json:"user_ids,omitempty"`
 }
 
 var duplicateUserIdChecker = make(map[int]int)
@@ -33,7 +33,7 @@ func (c Chat) Validate() error {
 		duplicateUserIdChecker[userId]++
 
 		if duplicateUserIdChecker[userId] > 1 {
-			return fmt.Errorf("duplicate user id=%d in response", userId)
+			return fmt.Errorf("duplicate user id=%d in request", userId)
 		}
 	}
 

@@ -93,3 +93,19 @@ func (r *ChatPostgres) CreateChat(chat entity.Chat) (int, error) {
 
 	return chatId, tx.Commit()
 }
+
+// Получение списка чатов пользователя
+func (r *ChatPostgres) GetAllChats(userId int) ([]entity.Chat, error) {
+	var chats []entity.Chat
+	query := fmt.Sprintf(`SELECT c.id, c.title, c.description FROM %s us
+						  INNER JOIN %s c ON c.id=us.chat_id
+						  WHERE us.user_id=$1`,
+		usersChatsTable, chatsTable)
+
+	err := r.db.Select(&chats, query, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return chats, nil
+}

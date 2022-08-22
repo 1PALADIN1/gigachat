@@ -10,12 +10,18 @@ import (
 
 // Общий хендлер для чатов
 func (h *Handler) handleChat(w http.ResponseWriter, r *http.Request) {
-	if _, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization); !ok {
+	userId, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
+	if !ok {
 		return
 	}
 
 	if r.Method == http.MethodPost {
 		h.createChat(w, r)
+		return
+	}
+
+	if r.Method == http.MethodGet {
+		h.getAllChats(w, r, userId)
 		return
 	}
 
@@ -46,4 +52,17 @@ func (h *Handler) createChat(w http.ResponseWriter, r *http.Request) {
 	helper.SendResponse(w, http.StatusOK, map[string]interface{}{
 		"id": chatId,
 	})
+}
+
+// Получение всех чатов пользователя
+func (h *Handler) getAllChats(w http.ResponseWriter, r *http.Request, userId int) {
+	defer r.Body.Close()
+
+	chats, err := h.service.GetAllChats(userId)
+	if err != nil {
+		helper.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	helper.SendResponse(w, http.StatusOK, chats)
 }
