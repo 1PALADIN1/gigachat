@@ -12,8 +12,6 @@ import (
 
 // Получение всех сообщений из чата
 func (h *Handler) getAllChatMessages(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	userId, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
 	if !ok {
 		return
@@ -39,7 +37,7 @@ func (h *Handler) getAllChatMessages(w http.ResponseWriter, r *http.Request) {
 
 	resp := make([]entity.ResponseMessage, 0)
 	for _, m := range messages {
-		resp = append(resp, m.BuildMessageResponse(user))
+		resp = append(resp, m.ToResponse(user))
 	}
 
 	helper.SendResponse(w, http.StatusOK, resp)

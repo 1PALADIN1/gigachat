@@ -24,19 +24,11 @@ type ResponseMessage struct {
 	ResponseUser `json:"user"`
 }
 
-type ResponseUser struct {
-	Id       int    `json:"id"`
-	Username string `json:"username"`
-}
-
-func (m Message) BuildMessageResponse(user User) ResponseMessage {
+func (m Message) ToResponse(user User) ResponseMessage {
 	return ResponseMessage{
-		ResponseUser: ResponseUser{
-			Id:       user.Id,
-			Username: user.Username,
-		},
-		SendTime: m.SendTime.Format(MessageTimeFormat),
-		Text:     m.Text,
-		ChatId:   m.ChatId,
+		ResponseUser: user.ToResponse(),
+		SendTime:     m.SendTime.Format(MessageTimeFormat),
+		Text:         m.Text,
+		ChatId:       m.ChatId,
 	}
 }

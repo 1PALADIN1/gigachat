@@ -14,6 +14,7 @@ type Authorization interface {
 
 type User interface {
 	GetUserById(id int) (entity.User, error)
+	FindUserByName(filter string, currentUserId int) ([]entity.User, error)
 	AddUserInActiveList(connection *websocket.Conn)
 	RemoveUserFromActiveList(connection *websocket.Conn)
 	SendMessageToAllUsers(messageType int, message []byte)
@@ -36,16 +37,21 @@ type Service struct {
 	Message
 }
 
-type AuthConfig struct {
-	SigningKey       string
-	PasswordHashSalt string
-	TokenTTL         int
+type ServiceConfig struct {
+	Auth struct {
+		SigningKey       string
+		PasswordHashSalt string
+		TokenTTL         int
+	}
+	App struct {
+		MinSearchSymbols int
+	}
 }
 
-func NewService(repo *repository.Repository, authConfig AuthConfig) *Service {
+func NewService(repo *repository.Repository, config ServiceConfig) *Service {
 	return &Service{
-		Authorization: NewAuthService(repo.Authorization, authConfig.SigningKey, authConfig.PasswordHashSalt, authConfig.TokenTTL),
-		User:          NewUserService(repo.User),
+		Authorization: NewAuthService(repo.Authorization, config.Auth.SigningKey, config.Auth.PasswordHashSalt, config.Auth.TokenTTL),
+		User:          NewUserService(repo.User, config.App.MinSearchSymbols),
 		Chat:          NewChatService(repo.Chat, repo.User),
 		Message:       NewMessageService(repo.Message),
 	}

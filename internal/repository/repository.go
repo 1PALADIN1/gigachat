@@ -13,6 +13,7 @@ type Authorization interface {
 
 type User interface {
 	GetUserById(id int) (entity.User, error)
+	FindUserByName(filter string, currentUserId int) ([]entity.User, error)
 }
 
 type Chat interface {

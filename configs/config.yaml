@@ -12,3 +12,6 @@ db:
   user: postgres
   db-name: postgres
   ssl-mode: disable
+
+app:
+  min-search-symb: 3

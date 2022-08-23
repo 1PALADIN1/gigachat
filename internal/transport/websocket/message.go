@@ -39,7 +39,7 @@ func (h *Handler) handleUserMessages(connection *websocket.Conn, userId int) {
 			continue
 		}
 
-		respMessage := resultMessage.BuildMessageResponse(user)
+		respMessage := resultMessage.ToResponse(user)
 		jsonMsg, err := json.Marshal(&respMessage)
 		if err != nil {
 			log.Println("error converting message:", err)

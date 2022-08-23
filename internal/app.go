@@ -37,6 +37,9 @@ type Config struct {
 		DBName   string
 		SSLMode  string
 	}
+	App struct {
+		MinSearchSymbols int
+	}
 }
 
 func Run(config *Config) {
@@ -46,11 +49,13 @@ func Run(config *Config) {
 	}
 
 	repo := repository.NewRepository(db)
-	service := service.NewService(repo, service.AuthConfig{
-		SigningKey:       config.Auth.SigningKey,
-		PasswordHashSalt: config.Auth.PasswordHashSalt,
-		TokenTTL:         config.Auth.TokenTTL,
-	})
+
+	srvConfig := service.ServiceConfig{}
+	srvConfig.Auth.SigningKey = config.Auth.SigningKey
+	srvConfig.Auth.PasswordHashSalt = config.Auth.PasswordHashSalt
+	srvConfig.Auth.TokenTTL = config.Auth.TokenTTL
+	srvConfig.App.MinSearchSymbols = config.App.MinSearchSymbols
+	service := service.NewService(repo, srvConfig)
 
 	server := setupServer(config, service)
 	if err := server.Start(); err != nil {

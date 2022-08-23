@@ -26,4 +26,6 @@ func (h *Handler) SetupRoutes(r *mux.Router) {
 	r.HandleFunc("/api/chat", h.getAllChats).Methods(http.MethodGet)
 	//messages
 	r.HandleFunc("/api/chat/{id:[0-9]+}", h.getAllChatMessages).Methods(http.MethodGet)
+	//users
+	r.HandleFunc("/api/user/{user}", h.findUserByName).Methods(http.MethodGet)
 }

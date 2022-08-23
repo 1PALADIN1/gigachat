@@ -1,7 +1,9 @@
 package service
 
 import (
+	"fmt"
 	"log"
+	"strings"
 	"sync"
 
 	"github.com/1PALADIN1/gigachat_server/internal/entity"
@@ -10,15 +12,17 @@ import (
 )
 
 type UserService struct {
-	mx          sync.Mutex
-	activeUsers map[*websocket.Conn]bool
-	repo        repository.User
+	mx               sync.Mutex
+	activeUsers      map[*websocket.Conn]bool
+	repo             repository.User
+	minSearchSymbols int
 }
 
-func NewUserService(repo repository.User) *UserService {
+func NewUserService(repo repository.User, minSearchSymbols int) *UserService {
 	return &UserService{
-		repo:        repo,
-		activeUsers: make(map[*websocket.Conn]bool),
+		repo:             repo,
+		activeUsers:      make(map[*websocket.Conn]bool),
+		minSearchSymbols: minSearchSymbols,
 	}
 }
 
@@ -26,6 +30,15 @@ func NewUserService(repo repository.User) *UserService {
 // Возвращает структуру пользователя в случае успеха
 func (s *UserService) GetUserById(id int) (entity.User, error) {
 	return s.repo.GetUserById(id)
+}
+
+// Ищет пользователей по username (исключаем текущего пользователя)
+func (s *UserService) FindUserByName(filter string, currentUserId int) ([]entity.User, error) {
+	if len(strings.TrimSpace(filter)) < s.minSearchSymbols {
+		return nil, fmt.Errorf("requires min %d symbols to perfom searching", s.minSearchSymbols)
+	}
+
+	return s.repo.FindUserByName(filter, currentUserId)
 }
 
 func (s *UserService) AddUserInActiveList(connection *websocket.Conn) {

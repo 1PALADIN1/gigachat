@@ -16,9 +16,6 @@ type successSignInResponse struct {
 // Хендлер регистрации нового пользователя
 func (h *Handler) singUpUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	if !helper.ValidateRequestMethod(w, r, http.MethodPost) {
-		return
-	}
 
 	var input entity.User
 	err := json.NewDecoder(r.Body).Decode(&input)
@@ -47,9 +44,6 @@ func (h *Handler) singUpUser(w http.ResponseWriter, r *http.Request) {
 // Хендлер авторизации пользователя
 func (h *Handler) signInUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	if !helper.ValidateRequestMethod(w, r, http.MethodPost) {
-		return
-	}
 
 	var input entity.User
 	err := json.NewDecoder(r.Body).Decode(&input)

@@ -10,12 +10,11 @@ import (
 
 // Создание чата (или получение существующего, если такой чат уже существует)
 func (h *Handler) createChat(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	_, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
 	if !ok {
 		return
 	}
+	defer r.Body.Close()
 
 	var chat entity.Chat
 	if err := json.NewDecoder(r.Body).Decode(&chat); err != nil {
@@ -41,8 +40,6 @@ func (h *Handler) createChat(w http.ResponseWriter, r *http.Request) {
 
 // Получение всех чатов пользователя
 func (h *Handler) getAllChats(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
 	userId, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
 	if !ok {
 		return
