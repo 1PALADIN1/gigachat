@@ -4,27 +4,9 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/1PALADIN1/gigachat_server/internal/entity"
 	"github.com/gorilla/websocket"
 )
-
-type requestMessage struct {
-	Text   string `json:"message"`
-	ChatId int    `json:"chat_id"`
-}
-
-type responseMessage struct {
-	SendTime     string `json:"send_time"`
-	Text         string `json:"text"`
-	ChatId       int    `json:"chat_id"`
-	responseUser `json:"user"`
-}
-
-type responseUser struct {
-	Id       int    `json:"id"`
-	Username string `json:"username"`
-}
-
-const timeFormat = "2006-01-02 15:04"
 
 func (h *Handler) handleUserMessages(connection *websocket.Conn, userId int) {
 	defer h.service.RemoveUserFromActiveList(connection)
@@ -45,29 +27,20 @@ func (h *Handler) handleUserMessages(connection *websocket.Conn, userId int) {
 			break
 		}
 
-		var reqMessage requestMessage
+		var reqMessage entity.RequestMessage
 		if err := json.Unmarshal(message, &reqMessage); err != nil {
 			log.Println("error parsing request:", err.Error())
 			continue
 		}
 
-		resMessage, err := h.service.AddMessageToChat(user.Id, reqMessage.ChatId, reqMessage.Text)
+		resultMessage, err := h.service.AddMessageToChat(user.Id, reqMessage.ChatId, reqMessage.Text)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		rawMsg := responseMessage{
-			responseUser: responseUser{
-				Id:       user.Id,
-				Username: user.Username,
-			},
-			SendTime: resMessage.SendTime.Format(timeFormat),
-			Text:     reqMessage.Text,
-			ChatId:   1,
-		}
-
-		jsonMsg, err := json.Marshal(&rawMsg)
+		respMessage := resultMessage.BuildMessageResponse(user)
+		jsonMsg, err := json.Marshal(&respMessage)
 		if err != nil {
 			log.Println("error converting message:", err)
 			continue

@@ -19,3 +19,8 @@ func NewMessageService(messageRepo repository.Message) *MessageService {
 func (s *MessageService) AddMessageToChat(userId, chatId int, message string) (entity.Message, error) {
 	return s.messageRepo.AddMessageToChat(userId, chatId, message)
 }
+
+// Получение всех сообщений из указанного чата
+func (s *MessageService) GetAllMessages(chatId int) ([]entity.Message, error) {
+	return s.messageRepo.GetAllMessages(chatId)
+}

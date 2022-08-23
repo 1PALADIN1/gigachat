@@ -26,6 +26,7 @@ type Chat interface {
 
 type Message interface {
 	AddMessageToChat(userId, chatId int, message string) (entity.Message, error)
+	GetAllMessages(chatId int) ([]entity.Message, error)
 }
 
 type Service struct {

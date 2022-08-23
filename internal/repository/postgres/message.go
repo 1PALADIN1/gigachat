@@ -38,3 +38,15 @@ func (r *MessagePostgress) AddMessageToChat(userId, chatId int, message string) 
 
 	return resMessage, nil
 }
+
+// Получение всех сообщений из указанного чата
+func (r *MessagePostgress) GetAllMessages(chatId int) ([]entity.Message, error) {
+	var messages []entity.Message
+
+	query := fmt.Sprintf(`SELECT * FROM %s WHERE chat_id=$1`, messagesTable)
+	if err := r.db.Select(&messages, query, chatId); err != nil {
+		return nil, err
+	}
+
+	return messages, nil
+}

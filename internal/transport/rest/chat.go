@@ -8,29 +8,14 @@ import (
 	"github.com/1PALADIN1/gigachat_server/internal/transport/helper"
 )
 
-// Общий хендлер для чатов
-func (h *Handler) handleChat(w http.ResponseWriter, r *http.Request) {
-	userId, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
-	if !ok {
-		return
-	}
-
-	if r.Method == http.MethodPost {
-		h.createChat(w, r)
-		return
-	}
-
-	if r.Method == http.MethodGet {
-		h.getAllChats(w, r, userId)
-		return
-	}
-
-	helper.SendErrorResponse(w, http.StatusBadRequest, "invalid request method")
-}
-
 // Создание чата (или получение существующего, если такой чат уже существует)
 func (h *Handler) createChat(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
+
+	_, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
+	if !ok {
+		return
+	}
 
 	var chat entity.Chat
 	if err := json.NewDecoder(r.Body).Decode(&chat); err != nil {
@@ -55,8 +40,13 @@ func (h *Handler) createChat(w http.ResponseWriter, r *http.Request) {
 }
 
 // Получение всех чатов пользователя
-func (h *Handler) getAllChats(w http.ResponseWriter, r *http.Request, userId int) {
+func (h *Handler) getAllChats(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
+
+	userId, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
+	if !ok {
+		return
+	}
 
 	chats, err := h.service.GetAllChats(userId)
 	if err != nil {

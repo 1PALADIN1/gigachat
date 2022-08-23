@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/1PALADIN1/gigachat_server/internal/service"
+	"github.com/gorilla/mux"
 )
 
 type Handler struct {
@@ -16,10 +17,13 @@ func NewHandler(service *service.Service) *Handler {
 	}
 }
 
-func (h *Handler) SetupRoutes(mux *http.ServeMux) {
+func (h *Handler) SetupRoutes(r *mux.Router) {
 	//auth
-	mux.HandleFunc("/api/auth/sign-up", h.singUpUser) //POST
-	mux.HandleFunc("/api/auth/sign-in", h.signInUser) //POST
+	r.HandleFunc("/api/auth/sign-up", h.singUpUser).Methods(http.MethodPost)
+	r.HandleFunc("/api/auth/sign-in", h.signInUser).Methods(http.MethodPost)
 	//chats
-	mux.HandleFunc("/api/chat", h.handleChat) //POST | GET
+	r.HandleFunc("/api/chat", h.createChat).Methods(http.MethodPost)
+	r.HandleFunc("/api/chat", h.getAllChats).Methods(http.MethodGet)
+	//messages
+	r.HandleFunc("/api/chat/{id:[0-9]+}", h.getAllChatMessages).Methods(http.MethodGet)
 }

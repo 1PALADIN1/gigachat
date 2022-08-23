@@ -4,9 +4,9 @@ package internal
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/1PALADIN1/gigachat_server/internal/service"
+	"github.com/gorilla/mux"
 
 	"github.com/1PALADIN1/gigachat_server/internal/repository"
 
@@ -76,17 +76,16 @@ func setupDB(config *Config) (*sqlx.DB, error) {
 }
 
 func setupServer(config *Config, service *service.Service) *Server {
-	mux := http.NewServeMux()
-
+	r := mux.NewRouter()
 	wsHandler := websocket.NewHandler(service)
-	wsHandler.SetupRoutes(mux)
+	wsHandler.SetupRoutes(r)
 
 	restHandler := rest.NewHandler(service)
-	restHandler.SetupRoutes(mux)
+	restHandler.SetupRoutes(r)
 
 	return NewServer(ServerConfig{
 		Port:           config.Server.Port,
-		Handler:        mux,
+		Handler:        r,
 		MaxHeaderBytes: 1 << 20, //1MB
 		ReadTimeout:    config.Server.ReadTimeout,
 		WriteTimeout:   config.Server.WriteTimeout,
