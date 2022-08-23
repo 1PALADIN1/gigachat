@@ -24,10 +24,15 @@ type Chat interface {
 	GetAllChats(userId int) ([]entity.Chat, error)
 }
 
+type Message interface {
+	AddMessageToChat(userId, chatId int, message string) (entity.Message, error)
+}
+
 type Service struct {
 	Authorization
 	User
 	Chat
+	Message
 }
 
 type AuthConfig struct {
@@ -41,5 +46,6 @@ func NewService(repo *repository.Repository, authConfig AuthConfig) *Service {
 		Authorization: NewAuthService(repo.Authorization, authConfig.SigningKey, authConfig.PasswordHashSalt, authConfig.TokenTTL),
 		User:          NewUserService(repo.User),
 		Chat:          NewChatService(repo.Chat, repo.User),
+		Message:       NewMessageService(repo.Message),
 	}
 }

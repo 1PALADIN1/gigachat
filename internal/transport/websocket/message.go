@@ -3,16 +3,28 @@ package websocket
 import (
 	"encoding/json"
 	"log"
-	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-type userMessage struct {
-	User     string `json:"user"`
-	SendTime string `json:"send_time"`
-	Text     string `json:"text"`
+type requestMessage struct {
+	Text   string `json:"message"`
+	ChatId int    `json:"chat_id"`
 }
+
+type responseMessage struct {
+	SendTime     string `json:"send_time"`
+	Text         string `json:"text"`
+	ChatId       int    `json:"chat_id"`
+	responseUser `json:"user"`
+}
+
+type responseUser struct {
+	Id       int    `json:"id"`
+	Username string `json:"username"`
+}
+
+const timeFormat = "2006-01-02 15:04"
 
 func (h *Handler) handleUserMessages(connection *websocket.Conn, userId int) {
 	defer h.service.RemoveUserFromActiveList(connection)
@@ -29,19 +41,35 @@ func (h *Handler) handleUserMessages(connection *websocket.Conn, userId int) {
 	for {
 		messageType, message, err := connection.ReadMessage()
 		if err != nil || messageType == websocket.CloseMessage {
-			log.Println("Connection closed ", connection.RemoteAddr())
+			log.Println("connection closed", connection.RemoteAddr())
 			break
 		}
 
-		rawMsg := userMessage{
-			User:     user.Username,
-			SendTime: time.Now().UTC().Format("2006-01-02 15:04"),
-			Text:     string(message),
+		var reqMessage requestMessage
+		if err := json.Unmarshal(message, &reqMessage); err != nil {
+			log.Println("error parsing request:", err.Error())
+			continue
+		}
+
+		resMessage, err := h.service.AddMessageToChat(user.Id, reqMessage.ChatId, reqMessage.Text)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		rawMsg := responseMessage{
+			responseUser: responseUser{
+				Id:       user.Id,
+				Username: user.Username,
+			},
+			SendTime: resMessage.SendTime.Format(timeFormat),
+			Text:     reqMessage.Text,
+			ChatId:   1,
 		}
 
 		jsonMsg, err := json.Marshal(&rawMsg)
 		if err != nil {
-			log.Println("Error converting message:", err)
+			log.Println("error converting message:", err)
 			continue
 		}
 

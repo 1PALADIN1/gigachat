@@ -21,10 +21,15 @@ type Chat interface {
 	GetAllChats(userId int) ([]entity.Chat, error)
 }
 
+type Message interface {
+	AddMessageToChat(userId, chatId int, message string) (entity.Message, error)
+}
+
 type Repository struct {
 	Authorization
 	User
 	Chat
+	Message
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
@@ -32,5 +37,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Authorization: postgres.NewAuthPostgres(db),
 		User:          postgres.NewUserPostgres(db),
 		Chat:          postgres.NewChatPostgres(db),
+		Message:       postgres.NewMessagePostgress(db),
 	}
 }
