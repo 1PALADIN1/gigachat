@@ -29,12 +29,14 @@ func NewHandler(service *service.Service) *Handler {
 }
 
 func (h *Handler) SetupRoutes(r *mux.Router) {
-	r.HandleFunc("/ws", h.setupWsConnection)
+	r.HandleFunc("/ws/{token}", h.setupWsConnection)
 }
 
 func (h *Handler) setupWsConnection(w http.ResponseWriter, r *http.Request) {
-	userId, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
-	if !ok {
+	token := mux.Vars(r)["token"]
+	userId, err := h.service.Authorization.ParseToken(token)
+	if err != nil {
+		helper.SendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
