@@ -1,6 +1,6 @@
 CREATE TABLE chats (
     id serial not null unique,
-    title varchar(30) not null,
+    title varchar(100) not null,
     description varchar(255)
 );
 
