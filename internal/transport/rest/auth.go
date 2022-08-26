@@ -10,7 +10,8 @@ import (
 )
 
 type successSignInResponse struct {
-	Token string `json:"access_token"`
+	UserId int    `json:"id"`
+	Token  string `json:"access_token"`
 }
 
 // Хендлер регистрации нового пользователя
@@ -57,13 +58,14 @@ func (h *Handler) signInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.service.GenerateToken(input.Username, input.Password)
+	token, userId, err := h.service.GenerateToken(input.Username, input.Password)
 	if err != nil {
 		helper.SendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
 	helper.SendResponse(w, http.StatusOK, successSignInResponse{
-		Token: token,
+		UserId: userId,
+		Token:  token,
 	})
 }

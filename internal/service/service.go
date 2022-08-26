@@ -8,7 +8,7 @@ import (
 
 type Authorization interface {
 	SignUpUser(user entity.User) (int, error)
-	GenerateToken(username, password string) (string, error)
+	GenerateToken(username, password string) (string, int, error)
 	ParseToken(token string) (int, error)
 }
 

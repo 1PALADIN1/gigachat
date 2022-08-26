@@ -41,10 +41,10 @@ func (s *AuthService) SignUpUser(user entity.User) (int, error) {
 }
 
 // Генерирует JWT-токен после успешной авторизации пользователя
-func (s *AuthService) GenerateToken(username, password string) (string, error) {
+func (s *AuthService) GenerateToken(username, password string) (string, int, error) {
 	user, err := s.authRepo.GetUser(username, s.generatePasswordHash(password))
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	addExpireAt := time.Duration(s.tokenTTL) * time.Second
@@ -56,7 +56,9 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 		user.Id,
 	})
 
-	return token.SignedString([]byte(s.signingKey))
+	res, err := token.SignedString([]byte(s.signingKey))
+
+	return res, user.Id, err
 }
 
 // Валидирует токен и возвращает id пользователя в случае успеха
