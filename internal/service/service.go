@@ -8,31 +8,62 @@ import (
 
 type Authorization interface {
 	SignUpUser(user entity.User) (int, error)
-	GenerateToken(username, password string) (string, error)
+	GenerateToken(username, password string) (string, int, error)
 	ParseToken(token string) (int, error)
 }
 
 type User interface {
 	GetUserById(id int) (entity.User, error)
-	AddUserInActiveList(connection *websocket.Conn)
-	RemoveUserFromActiveList(connection *websocket.Conn)
-	SendMessageToAllUsers(messageType int, message []byte)
+	FindUserByName(filter string, currentUserId int) ([]entity.User, error)
+}
+
+type Chat interface {
+	GetOrCreateChat(chat entity.Chat) (int, error)
+	GetAllChats(userId int) ([]entity.ChatResponse, error)
+}
+
+type Message interface {
+	AddMessageToChat(userId, chatId int, message string) (entity.Message, error)
+	GetAllMessages(chatId int) ([]entity.Message, error)
+}
+
+type UserConnection interface {
+	AddUserInActiveList(userId int, connection *websocket.Conn)
+	RemoveUserFromActiveList(userId int)
+	NotifyActiveUsers(notification NotificationMessage) error
+}
+
+type Notification interface {
+	NewMessageNotification(messageType int, message entity.ResponseMessage) (NotificationMessage, error)
 }
 
 type Service struct {
 	Authorization
 	User
+	Chat
+	Message
+	UserConnection
+	Notification
 }
 
-type AuthConfig struct {
-	SigningKey       string
-	PasswordHashSalt string
-	TokenTTL         int
+type ServiceConfig struct {
+	Auth struct {
+		SigningKey       string
+		PasswordHashSalt string
+		TokenTTL         int
+	}
+	App struct {
+		MinSearchSymbols int
+	}
 }
 
-func NewService(repo *repository.Repository, authConfig AuthConfig) *Service {
+func NewService(repo *repository.Repository, config ServiceConfig) *Service {
 	return &Service{
-		Authorization: NewAuthService(repo.Authorization, authConfig.SigningKey, authConfig.PasswordHashSalt, authConfig.TokenTTL),
-		User:          NewUserService(repo.User),
+		Authorization:  NewAuthService(repo.Authorization, config.Auth.SigningKey, config.Auth.PasswordHashSalt, config.Auth.TokenTTL),
+		User:           NewUserService(repo.User, config.App.MinSearchSymbols),
+		Chat:           NewChatService(repo.Chat, repo.User),
+		Message:        NewMessageService(repo.Message),
+		UserConnection: NewUserConnectionService(repo.Chat),
+		Notification:   NewNotificationService(repo.Chat),
 	}
 }

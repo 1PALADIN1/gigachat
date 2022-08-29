@@ -11,6 +11,11 @@ type User struct {
 	Password string `json:"password" db:"password"`
 }
 
+type ResponseUser struct {
+	Id       int    `json:"id"`
+	Username string `json:"username"`
+}
+
 func (u User) Validate() error {
 	if strings.TrimSpace(u.Username) == "" {
 		return errors.New("username is not set")
@@ -21,4 +26,11 @@ func (u User) Validate() error {
 	}
 
 	return nil
+}
+
+func (u User) ToResponse() ResponseUser {
+	return ResponseUser{
+		Id:       u.Id,
+		Username: u.Username,
+	}
 }

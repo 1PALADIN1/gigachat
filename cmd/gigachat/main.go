@@ -34,6 +34,8 @@ func main() {
 	config.DB.Password = os.Getenv("DB_PASSWORD")
 	config.DB.DBName = viper.GetString("db.db-name")
 	config.DB.SSLMode = viper.GetString("db.ssl-mode")
+	//app
+	config.App.MinSearchSymbols = viper.GetInt("app.min-search-symb")
 
 	app.Run(config)
 }

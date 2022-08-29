@@ -6,6 +6,7 @@ import (
 
 	"github.com/1PALADIN1/gigachat_server/internal/service"
 	"github.com/1PALADIN1/gigachat_server/internal/transport/helper"
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
@@ -27,13 +28,15 @@ func NewHandler(service *service.Service) *Handler {
 	}
 }
 
-func (h *Handler) SetupRoutes(mux *http.ServeMux) {
-	mux.HandleFunc("/ws", h.setupWsConnection)
+func (h *Handler) SetupRoutes(r *mux.Router) {
+	r.HandleFunc("/ws/{token}", h.setupWsConnection)
 }
 
 func (h *Handler) setupWsConnection(w http.ResponseWriter, r *http.Request) {
-	userId, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
-	if !ok {
+	token := mux.Vars(r)["token"]
+	userId, err := h.service.Authorization.ParseToken(token)
+	if err != nil {
+		helper.SendErrorResponse(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 

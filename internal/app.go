@@ -4,9 +4,9 @@ package internal
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/1PALADIN1/gigachat_server/internal/service"
+	"github.com/gorilla/mux"
 
 	"github.com/1PALADIN1/gigachat_server/internal/repository"
 
@@ -37,6 +37,9 @@ type Config struct {
 		DBName   string
 		SSLMode  string
 	}
+	App struct {
+		MinSearchSymbols int
+	}
 }
 
 func Run(config *Config) {
@@ -46,11 +49,13 @@ func Run(config *Config) {
 	}
 
 	repo := repository.NewRepository(db)
-	service := service.NewService(repo, service.AuthConfig{
-		SigningKey:       config.Auth.SigningKey,
-		PasswordHashSalt: config.Auth.PasswordHashSalt,
-		TokenTTL:         config.Auth.TokenTTL,
-	})
+
+	srvConfig := service.ServiceConfig{}
+	srvConfig.Auth.SigningKey = config.Auth.SigningKey
+	srvConfig.Auth.PasswordHashSalt = config.Auth.PasswordHashSalt
+	srvConfig.Auth.TokenTTL = config.Auth.TokenTTL
+	srvConfig.App.MinSearchSymbols = config.App.MinSearchSymbols
+	service := service.NewService(repo, srvConfig)
 
 	server := setupServer(config, service)
 	if err := server.Start(); err != nil {
@@ -76,17 +81,16 @@ func setupDB(config *Config) (*sqlx.DB, error) {
 }
 
 func setupServer(config *Config, service *service.Service) *Server {
-	mux := http.NewServeMux()
-
+	r := mux.NewRouter()
 	wsHandler := websocket.NewHandler(service)
-	wsHandler.SetupRoutes(mux)
+	wsHandler.SetupRoutes(r)
 
 	restHandler := rest.NewHandler(service)
-	restHandler.SetupRoutes(mux)
+	restHandler.SetupRoutes(r)
 
 	return NewServer(ServerConfig{
 		Port:           config.Server.Port,
-		Handler:        mux,
+		Handler:        r,
 		MaxHeaderBytes: 1 << 20, //1MB
 		ReadTimeout:    config.Server.ReadTimeout,
 		WriteTimeout:   config.Server.WriteTimeout,

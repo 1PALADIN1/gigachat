@@ -18,7 +18,10 @@ type Config struct {
 
 const (
 	//tables
-	usersTable = "users"
+	usersTable      = "users"
+	chatsTable      = "chats"
+	usersChatsTable = "users_chats"
+	messagesTable   = "messages"
 )
 
 func NewDB(config Config) (*sqlx.DB, error) {
