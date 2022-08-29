@@ -9,16 +9,15 @@ import (
 )
 
 func (h *Handler) handleUserMessages(connection *websocket.Conn, userId int) {
-	defer h.service.RemoveUserFromActiveList(connection)
-
-	log.Println("User", userId, "connected!")
-	h.service.AddUserInActiveList(connection)
-
 	user, err := h.service.GetUserById(userId)
 	if err != nil {
 		log.Printf("user with id %d is not found\n", userId)
 		return
 	}
+	defer h.service.RemoveUserFromActiveList(userId)
+
+	log.Println("User", userId, "connected!")
+	h.service.AddUserInActiveList(userId, connection)
 
 	for {
 		messageType, message, err := connection.ReadMessage()
@@ -39,14 +38,14 @@ func (h *Handler) handleUserMessages(connection *websocket.Conn, userId int) {
 			continue
 		}
 
-		respMessage := resultMessage.ToResponse(user)
-		jsonMsg, err := json.Marshal(&respMessage)
+		notification, err := h.service.NewMessageNotification(messageType, resultMessage.ToResponse(user))
 		if err != nil {
-			log.Println("error converting message:", err)
+			log.Println(err)
 			continue
 		}
 
-		log.Println("Message type", messageType, "-> message:", string(jsonMsg))
-		h.service.SendMessageToAllUsers(messageType, jsonMsg)
+		if err := h.service.UserConnection.NotifyActiveUsers(notification); err != nil {
+			log.Println(err)
+		}
 	}
 }

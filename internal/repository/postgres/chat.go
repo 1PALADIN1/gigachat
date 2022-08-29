@@ -109,3 +109,17 @@ func (r *ChatPostgres) GetAllChats(userId int) ([]entity.Chat, error) {
 
 	return chats, nil
 }
+
+// Получение пользователей из указанного чата
+func (r *ChatPostgres) GetUserIdsByChatId(chatId int) ([]int, error) {
+	var userIds []int
+	query := fmt.Sprintf(`SELECT user_id FROM %s
+						  WHERE chat_id=$1`, usersChatsTable)
+
+	err := r.db.Select(&userIds, query, chatId)
+	if err != nil {
+		return nil, err
+	}
+
+	return userIds, nil
+}

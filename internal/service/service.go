@@ -15,9 +15,6 @@ type Authorization interface {
 type User interface {
 	GetUserById(id int) (entity.User, error)
 	FindUserByName(filter string, currentUserId int) ([]entity.User, error)
-	AddUserInActiveList(connection *websocket.Conn)
-	RemoveUserFromActiveList(connection *websocket.Conn)
-	SendMessageToAllUsers(messageType int, message []byte)
 }
 
 type Chat interface {
@@ -30,11 +27,23 @@ type Message interface {
 	GetAllMessages(chatId int) ([]entity.Message, error)
 }
 
+type UserConnection interface {
+	AddUserInActiveList(userId int, connection *websocket.Conn)
+	RemoveUserFromActiveList(userId int)
+	NotifyActiveUsers(notification NotificationMessage) error
+}
+
+type Notification interface {
+	NewMessageNotification(messageType int, message entity.ResponseMessage) (NotificationMessage, error)
+}
+
 type Service struct {
 	Authorization
 	User
 	Chat
 	Message
+	UserConnection
+	Notification
 }
 
 type ServiceConfig struct {
@@ -50,9 +59,11 @@ type ServiceConfig struct {
 
 func NewService(repo *repository.Repository, config ServiceConfig) *Service {
 	return &Service{
-		Authorization: NewAuthService(repo.Authorization, config.Auth.SigningKey, config.Auth.PasswordHashSalt, config.Auth.TokenTTL),
-		User:          NewUserService(repo.User, config.App.MinSearchSymbols),
-		Chat:          NewChatService(repo.Chat, repo.User),
-		Message:       NewMessageService(repo.Message),
+		Authorization:  NewAuthService(repo.Authorization, config.Auth.SigningKey, config.Auth.PasswordHashSalt, config.Auth.TokenTTL),
+		User:           NewUserService(repo.User, config.App.MinSearchSymbols),
+		Chat:           NewChatService(repo.Chat, repo.User),
+		Message:        NewMessageService(repo.Message),
+		UserConnection: NewUserConnectionService(repo.Chat),
+		Notification:   NewNotificationService(repo.Chat),
 	}
 }

@@ -20,6 +20,7 @@ type Chat interface {
 	GetChatIdByUsers(userIds []int) (int, bool, error)
 	CreateChat(chat entity.Chat) (int, error)
 	GetAllChats(userId int) ([]entity.Chat, error)
+	GetUserIdsByChatId(chatId int) ([]int, error)
 }
 
 type Message interface {
