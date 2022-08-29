@@ -9,6 +9,7 @@ type Message struct {
 	SendTime time.Time `db:"send_date_time"`
 	Text     string    `db:"message"`
 	UserId   int       `db:"user_id"`
+	Username string    `db:"username"`
 	ChatId   int       `db:"chat_id"`
 }
 
@@ -18,17 +19,19 @@ type RequestMessage struct {
 }
 
 type ResponseMessage struct {
-	SendTime     string `json:"send_time"`
-	Text         string `json:"text"`
-	ChatId       int    `json:"chat_id"`
-	ResponseUser `json:"user"`
+	SendTime string `json:"send_time"`
+	Text     string `json:"text"`
+	ChatId   int    `json:"chat_id"`
+	UserId   int    `json:"user_id"`
+	Username string `json:"username"`
 }
 
-func (m Message) ToResponse(user User) ResponseMessage {
+func (m Message) ToResponse() ResponseMessage {
 	return ResponseMessage{
-		ResponseUser: user.ToResponse(),
-		SendTime:     m.SendTime.Format(MessageTimeFormat),
-		Text:         m.Text,
-		ChatId:       m.ChatId,
+		SendTime: m.SendTime.Format(MessageTimeFormat),
+		Text:     m.Text,
+		ChatId:   m.ChatId,
+		UserId:   m.UserId,
+		Username: m.Username,
 	}
 }

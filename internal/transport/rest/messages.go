@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -12,7 +11,7 @@ import (
 
 // Получение всех сообщений из чата
 func (h *Handler) getAllChatMessages(w http.ResponseWriter, r *http.Request) {
-	userId, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
+	_, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
 	if !ok {
 		return
 	}
@@ -29,15 +28,9 @@ func (h *Handler) getAllChatMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.service.GetUserById(userId)
-	if err != nil {
-		helper.SendErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("user with id %d is not found", userId))
-		return
-	}
-
 	resp := make([]entity.ResponseMessage, 0)
 	for _, m := range messages {
-		resp = append(resp, m.ToResponse(user))
+		resp = append(resp, m.ToResponse())
 	}
 
 	helper.SendResponse(w, http.StatusOK, resp)

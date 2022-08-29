@@ -38,7 +38,7 @@ func (h *Handler) handleUserMessages(connection *websocket.Conn, userId int) {
 			continue
 		}
 
-		notification, err := h.service.NewMessageNotification(messageType, resultMessage.ToResponse(user))
+		notification, err := h.service.NewMessageNotification(messageType, resultMessage.ToResponse())
 		if err != nil {
 			log.Println(err)
 			continue
