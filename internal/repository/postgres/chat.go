@@ -95,12 +95,21 @@ func (r *ChatPostgres) CreateChat(chat entity.Chat) (int, error) {
 }
 
 // Получение списка чатов пользователя
-func (r *ChatPostgres) GetAllChats(userId int) ([]entity.Chat, error) {
-	var chats []entity.Chat
-	query := fmt.Sprintf(`SELECT c.id, c.title, c.description FROM %s us
+func (r *ChatPostgres) GetAllChats(userId int) ([]entity.ChatResponse, error) {
+	var chats []entity.ChatResponse
+	query := fmt.Sprintf(`SELECT c.id, c.title, c.description, t2.send_date_time, t2.message, t2.user_id, u.username FROM %s us
 						  INNER JOIN %s c ON c.id=us.chat_id
+						  LEFT JOIN (
+							SELECT m.id, m.user_id, m.message, m.send_date_time, t1.chat_id FROM %s m
+							LEFT JOIN (
+								SELECT m.chat_id, MAX(m.send_date_time) AS send_date_time FROM %s m
+								GROUP BY m.chat_id
+							) t1 ON m.chat_id=t1.chat_id
+							WHERE t1.send_date_time=m.send_date_time
+						  ) t2 ON us.chat_id=t2.chat_id
+						  INNER JOIN users u ON u.id=t2.user_id
 						  WHERE us.user_id=$1`,
-		usersChatsTable, chatsTable)
+		usersChatsTable, chatsTable, messagesTable, messagesTable)
 
 	err := r.db.Select(&chats, query, userId)
 	if err != nil {

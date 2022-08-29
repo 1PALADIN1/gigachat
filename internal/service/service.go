@@ -19,7 +19,7 @@ type User interface {
 
 type Chat interface {
 	GetOrCreateChat(chat entity.Chat) (int, error)
-	GetAllChats(userId int) ([]entity.Chat, error)
+	GetAllChats(userId int) ([]entity.ChatResponse, error)
 }
 
 type Message interface {

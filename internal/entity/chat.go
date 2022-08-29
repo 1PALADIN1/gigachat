@@ -13,6 +13,14 @@ type Chat struct {
 	UserIds     []int  `json:"user_ids,omitempty"`
 }
 
+type ChatResponse struct {
+	Chat
+	LastMessage         string `json:"last_message,omitempty" db:"message"`
+	LastMessageUserId   string `json:"last_message_user_id,omitempty" db:"user_id"`
+	LastMessageUsername string `json:"last_message_username,omitempty" db:"username"`
+	LastMessageTime     string `json:"last_message_time,omitempty" db:"send_date_time"`
+}
+
 var duplicateUserIdChecker = make(map[int]int)
 
 func (c Chat) Validate() error {

@@ -46,6 +46,6 @@ func (s *ChatService) GetOrCreateChat(chat entity.Chat) (int, error) {
 }
 
 // Получение списка чатов пользователя
-func (s *ChatService) GetAllChats(userId int) ([]entity.Chat, error) {
+func (s *ChatService) GetAllChats(userId int) ([]entity.ChatResponse, error) {
 	return s.chatRepo.GetAllChats(userId)
 }
