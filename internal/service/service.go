@@ -31,6 +31,7 @@ type UserConnection interface {
 	AddUserInActiveList(userId int, connection *websocket.Conn)
 	RemoveUserFromActiveList(userId int)
 	NotifyActiveUsers(notification NotificationMessage) error
+	CloseAllConnections()
 }
 
 type Notification interface {

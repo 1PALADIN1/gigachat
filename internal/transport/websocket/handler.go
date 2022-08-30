@@ -42,7 +42,7 @@ func (h *Handler) setupWsConnection(w http.ResponseWriter, r *http.Request) {
 
 	connection, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("Error in connection:", err)
+		log.Println("error in connection:", err)
 		return
 	}
 

@@ -73,3 +73,15 @@ func (s *UserConnectionService) RemoveUserFromActiveList(userId int) {
 		log.Println("Remove user from active list", userId, "active users:", len(s.activeUsers))
 	}
 }
+
+// Закрывает все пользовательские соединения
+func (s *UserConnectionService) CloseAllConnections() {
+	defer s.mx.Unlock()
+	s.mx.Lock()
+
+	for id, conn := range s.activeUsers {
+		if err := conn.Close(); err != nil {
+			log.Printf("error closing user [%d] connection: %s\n", id, err.Error())
+		}
+	}
+}
