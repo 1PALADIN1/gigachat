@@ -21,7 +21,7 @@ func (h *Handler) singUpUser(w http.ResponseWriter, r *http.Request) {
 	var input entity.User
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		helper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		helper.SendErrorResponse(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
@@ -60,7 +60,7 @@ func (h *Handler) signInUser(w http.ResponseWriter, r *http.Request) {
 
 	token, userId, err := h.service.GenerateToken(input.Username, input.Password)
 	if err != nil {
-		helper.SendErrorResponse(w, http.StatusUnauthorized, err.Error())
+		helper.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
