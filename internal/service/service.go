@@ -6,6 +6,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+//go:generate mockgen -source=service.go -destination=mocks/mock.go
+
 type Authorization interface {
 	SignUpUser(user entity.User) (int, error)
 	GenerateToken(username, password string) (string, int, error)
