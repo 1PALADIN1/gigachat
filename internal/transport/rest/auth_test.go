@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHandler_signUp(t *testing.T) {
+func TestHandler_singUpUser(t *testing.T) {
 	type mockBehavior func(s *mock_service.MockAuthorization, user entity.User)
 
 	testTable := []struct {
@@ -106,7 +106,7 @@ func TestHandler_signUp(t *testing.T) {
 	}
 }
 
-func TestHandler_signIn(t *testing.T) {
+func TestHandler_signInUser(t *testing.T) {
 	type mockBehavior func(s *mock_service.MockAuthorization, user entity.User)
 
 	testTable := []struct {

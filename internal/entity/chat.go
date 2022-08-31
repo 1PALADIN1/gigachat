@@ -29,7 +29,7 @@ func (c Chat) Validate() error {
 	}
 
 	if c.UserIds == nil || len(c.UserIds) < 2 {
-		return errors.New("needs at least 2 users to create chat")
+		return errors.New("need at least 2 users to create chat")
 	}
 
 	// проверяем дубликаты id в запросе
