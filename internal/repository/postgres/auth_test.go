@@ -41,7 +41,9 @@ func TestAuthPostgres_CreateUser(t *testing.T) {
 			},
 			id: 1,
 			mockBehavior: func(args args, id int) {
-				rows := sqlmock.NewRows([]string{"id"}).AddRow(id)
+				rows := sqlmock.NewRows([]string{"id"}).
+					AddRow(id)
+
 				mock.ExpectQuery("INSERT INTO users").
 					WithArgs(args.username, args.passwordHash).
 					WillReturnRows(rows)
