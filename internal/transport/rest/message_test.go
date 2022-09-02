@@ -47,7 +47,7 @@ func TestHandler_getAllChatMessages(t *testing.T) {
 				}, nil)
 			},
 			expectedStatusCode:   http.StatusOK,
-			expectedResponseBody: `[{"send_time":"2022-08-31 00:00","text":"Hello!","chat_id":1,"user_id":1,"username":"test_user"}]`,
+			expectedResponseBody: `[{"send_time":"2022-08-31 00:00:00","text":"Hello!","chat_id":1,"user_id":1,"username":"test_user"}]`,
 		},
 		{
 			name:        "OK Empty",
