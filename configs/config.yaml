@@ -7,7 +7,7 @@ auth:
   token-ttl: 14400
 
 db:
-  host: localhost 
+  host: db 
   port: 5432
   user: postgres
   db-name: postgres
