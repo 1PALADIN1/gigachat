@@ -9,3 +9,6 @@ CREATE TABLE users_chats (
     user_id int references users(id) on delete cascade not null,
     chat_id int references chats(id) on delete cascade not null
 );
+
+CREATE UNIQUE INDEX users_chats_unique_index
+ON users_chats (user_id, chat_id);
