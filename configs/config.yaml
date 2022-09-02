@@ -12,6 +12,7 @@ db:
   user: postgres
   db-name: postgres
   ssl-mode: disable
+  connection-timeout: 60
 
 app:
   min-search-symb: 3
