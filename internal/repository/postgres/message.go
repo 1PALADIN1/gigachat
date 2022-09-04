@@ -17,13 +17,12 @@ func NewMessagePostgress(db *sqlx.DB) *MessagePostgress {
 }
 
 // Добавляет сообщение в указанный чат
-func (r *MessagePostgress) AddMessageToChat(userId, chatId int, message string) (entity.Message, error) {
+func (r *MessagePostgress) AddMessageToChat(userId, chatId int, message string, sendTime time.Time) (entity.Message, error) {
 	var resMessage entity.Message
 	var messageId int
 	var username string
 
 	query := fmt.Sprintf(`INSERT INTO %s (message, send_date_time, chat_id, user_id) VALUES ($1, $2, $3, $4) RETURNING id`, messagesTable)
-	sendTime := time.Now().UTC()
 
 	row := r.db.QueryRow(query, message, sendTime, chatId, userId)
 	err := row.Scan(&messageId)

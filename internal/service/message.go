@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/1PALADIN1/gigachat_server/internal/entity"
 	"github.com/1PALADIN1/gigachat_server/internal/repository"
 )
@@ -17,7 +19,8 @@ func NewMessageService(messageRepo repository.Message) *MessageService {
 
 // Добавляет сообщение в указанный чат
 func (s *MessageService) AddMessageToChat(userId, chatId int, message string) (entity.Message, error) {
-	return s.messageRepo.AddMessageToChat(userId, chatId, message)
+	sendTime := time.Now().UTC()
+	return s.messageRepo.AddMessageToChat(userId, chatId, message, sendTime)
 }
 
 // Получение всех сообщений из указанного чата

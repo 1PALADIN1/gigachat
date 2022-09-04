@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/1PALADIN1/gigachat_server/internal/entity"
 	"github.com/1PALADIN1/gigachat_server/internal/repository/postgres"
 	"github.com/jmoiron/sqlx"
@@ -24,7 +26,7 @@ type Chat interface {
 }
 
 type Message interface {
-	AddMessageToChat(userId, chatId int, message string) (entity.Message, error)
+	AddMessageToChat(userId, chatId int, message string, sendTime time.Time) (entity.Message, error)
 	GetAllMessages(chatId int) ([]entity.Message, error)
 }
 

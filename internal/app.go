@@ -3,7 +3,11 @@
 package internal
 
 import (
+	"context"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/1PALADIN1/gigachat_server/internal/service"
 	"github.com/gorilla/mux"
@@ -30,12 +34,13 @@ type Config struct {
 		TokenTTL         int
 	}
 	DB struct {
-		Host     string
-		Port     int
-		User     string
-		Password string
-		DBName   string
-		SSLMode  string
+		Host              string
+		Port              int
+		User              string
+		Password          string
+		DBName            string
+		SSLMode           string
+		ConnectionTimeout int
 	}
 	App struct {
 		MinSearchSymbols int
@@ -58,19 +63,29 @@ func Run(config *Config) {
 	service := service.NewService(repo, srvConfig)
 
 	server := setupServer(config, service)
-	if err := server.Start(); err != nil {
-		log.Fatal(err)
-	}
+	go func() {
+		if err := server.Start(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	log.Println("ChatApp started")
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+
+	<-quit
+	stopServer(server, db, service)
 }
 
 func setupDB(config *Config) (*sqlx.DB, error) {
 	db, err := postgres.NewDB(postgres.Config{
-		Host:     config.DB.Host,
-		Port:     config.DB.Port,
-		User:     config.DB.User,
-		Password: config.DB.Password,
-		DBName:   config.DB.DBName,
-		SSLMode:  config.DB.SSLMode,
+		Host:              config.DB.Host,
+		Port:              config.DB.Port,
+		User:              config.DB.User,
+		Password:          config.DB.Password,
+		DBName:            config.DB.DBName,
+		SSLMode:           config.DB.SSLMode,
+		ConnectionTimeout: config.DB.ConnectionTimeout,
 	})
 
 	if err != nil {
@@ -95,4 +110,18 @@ func setupServer(config *Config, service *service.Service) *Server {
 		ReadTimeout:    config.Server.ReadTimeout,
 		WriteTimeout:   config.Server.WriteTimeout,
 	})
+}
+
+func stopServer(server *Server, db *sqlx.DB, service *service.Service) {
+	log.Println("ChatApp shutting down")
+
+	service.UserConnection.CloseAllConnections()
+
+	if err := server.Shutdown(context.Background()); err != nil {
+		log.Printf("error shutting down server: %s", err.Error())
+	}
+
+	if err := db.Close(); err != nil {
+		log.Printf("error closing db: %s", err.Error())
+	}
 }
