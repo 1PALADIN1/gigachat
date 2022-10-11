@@ -1,10 +1,7 @@
 server:
-  port: 8000
+  port: 80
   read-timeout: 10
   write-timeout: 10
-
-auth:
-  token-ttl: 14400
 
 db:
   connection-timeout: 120
