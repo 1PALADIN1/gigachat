@@ -22,5 +22,3 @@ go.work
 
 /.vscode
 .env
-/ignore
-/.database
