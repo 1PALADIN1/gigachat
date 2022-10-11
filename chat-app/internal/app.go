@@ -34,12 +34,7 @@ type Config struct {
 		TokenTTL         int
 	}
 	DB struct {
-		Host              string
-		Port              int
-		User              string
-		Password          string
-		DBName            string
-		SSLMode           string
+		DSN               string
 		ConnectionTimeout int
 	}
 	App struct {
@@ -78,16 +73,7 @@ func Run(config *Config) {
 }
 
 func setupDB(config *Config) (*sqlx.DB, error) {
-	db, err := postgres.NewDB(postgres.Config{
-		Host:              config.DB.Host,
-		Port:              config.DB.Port,
-		User:              config.DB.User,
-		Password:          config.DB.Password,
-		DBName:            config.DB.DBName,
-		SSLMode:           config.DB.SSLMode,
-		ConnectionTimeout: config.DB.ConnectionTimeout,
-	})
-
+	db, err := postgres.NewDB(config.DB.DSN, float64(config.DB.ConnectionTimeout))
 	if err != nil {
 		return nil, err
 	}

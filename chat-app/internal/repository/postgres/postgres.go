@@ -1,7 +1,6 @@
 package postgres
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -27,14 +26,11 @@ const (
 	messagesTable   = "messages"
 
 	//db
-	connectInterval = 2
+	connectInterval = 2 * time.Second
 )
 
-func NewDB(config Config) (*sqlx.DB, error) {
-	connString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode)
-
-	db, err := sqlx.Open("postgres", connString)
+func NewDB(dsn string, connectionTimeout float64) (*sqlx.DB, error) {
+	db, err := sqlx.Open("postgres", dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +38,7 @@ func NewDB(config Config) (*sqlx.DB, error) {
 	log.Printf("Trying to connect to databse...")
 	startTime := time.Now()
 	var succeed bool
-	for time.Since(startTime).Seconds() < float64(config.ConnectionTimeout) {
+	for time.Since(startTime).Seconds() < connectionTimeout {
 		err = db.Ping()
 		if err == nil {
 			succeed = true
@@ -50,7 +46,7 @@ func NewDB(config Config) (*sqlx.DB, error) {
 		}
 
 		log.Printf("failed connect: %s", err.Error())
-		time.Sleep(connectInterval * time.Second)
+		time.Sleep(connectInterval)
 	}
 
 	if !succeed {

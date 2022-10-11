@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  chat-app:
+    build:
+      context: ./../chat-app
+      dockerfile: ./../chat-app/chat-app.dockerfile
+    restart: always
+    ports:
+      - 8000:8000
+    depends_on:
+      - chat-db
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DSN: "host=chat-db port=5432 user=postgres password=123456psql dbname=chat_db sslmode=disable timezone=UTC connect_timeout=5"
+      PASSWORD_HASH_SALT: EXAMPLE_HASH_SALT
+      SINGING_KEY: EXAMPLE_SINGING_KEY
+
+  chat-db:
+    image: postgres:latest
+    volumes:
+      - ./.database/postgres/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456psql
+      POSTGRES_DB: chat_db
+    deploy:
+      mode: replicated
+      replicas: 1

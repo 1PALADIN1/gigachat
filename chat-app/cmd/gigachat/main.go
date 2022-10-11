@@ -5,17 +5,12 @@ import (
 	"os"
 
 	app "github.com/1PALADIN1/gigachat_server/internal"
-	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
 func main() {
 	if err := initConfig(); err != nil {
 		log.Fatalf("error initializing configs: %s", err.Error())
-	}
-
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("error loading env variables: %s", err.Error())
 	}
 
 	config := new(app.Config)
@@ -28,12 +23,7 @@ func main() {
 	config.Auth.PasswordHashSalt = os.Getenv("PASSWORD_HASH_SALT")
 	config.Auth.TokenTTL = viper.GetInt("auth.token-ttl")
 	//db
-	config.DB.Host = viper.GetString("db.host")
-	config.DB.Port = viper.GetInt("db.port")
-	config.DB.User = viper.GetString("db.user")
-	config.DB.Password = os.Getenv("DB_PASSWORD")
-	config.DB.DBName = viper.GetString("db.db-name")
-	config.DB.SSLMode = viper.GetString("db.ssl-mode")
+	config.DB.DSN = os.Getenv("DSN")
 	config.DB.ConnectionTimeout = viper.GetInt("db.connection-timeout")
 	//app
 	config.App.MinSearchSymbols = viper.GetInt("app.min-search-symb")

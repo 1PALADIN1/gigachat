@@ -1,10 +1,9 @@
-FROM golang:latest
+FROM alpine:latest
 
 RUN mkdir /app
-COPY ./ /app
 WORKDIR /app
 
-RUN go mod download
-RUN go build -o 'gigachat' /app/cmd/gigachat/main.go
+COPY ./.bin/chat-app .
+COPY ./configs ./configs
 
-CMD [ "/app/gigachat" ]
+CMD [ "/app/chat-app" ]

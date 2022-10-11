@@ -7,12 +7,7 @@ auth:
   token-ttl: 14400
 
 db:
-  host: localhost
-  port: 5432
-  user: postgres
-  db-name: postgres
-  ssl-mode: disable
-  connection-timeout: 60
+  connection-timeout: 120
 
 app:
   min-search-symb: 3
