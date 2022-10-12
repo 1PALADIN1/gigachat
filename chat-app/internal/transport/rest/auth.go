@@ -14,7 +14,7 @@ type successSignInResponse struct {
 	Token  string `json:"access_token"`
 }
 
-// Хендлер регистрации нового пользователя
+// singUpUser хендлер регистрации нового пользователя
 func (h *Handler) singUpUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -42,7 +42,7 @@ func (h *Handler) singUpUser(w http.ResponseWriter, r *http.Request) {
 		})
 }
 
-// Хендлер авторизации пользователя
+// signInUser хендлер авторизации пользователя
 func (h *Handler) signInUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -57,7 +57,6 @@ func (h *Handler) signInUser(w http.ResponseWriter, r *http.Request) {
 		helper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-
 	token, userId, err := h.service.GenerateToken(input.Username, input.Password)
 	if err != nil {
 		helper.SendErrorResponse(w, http.StatusInternalServerError, err.Error())

@@ -29,9 +29,8 @@ type Config struct {
 		WriteTimeout int
 	}
 	Auth struct {
-		SigningKey       string
-		PasswordHashSalt string
-		TokenTTL         int
+		Addr        string
+		ConnTimeout int
 	}
 	DB struct {
 		DSN               string
@@ -51,9 +50,8 @@ func Run(config *Config) {
 	repo := repository.NewRepository(db)
 
 	srvConfig := service.ServiceConfig{}
-	srvConfig.Auth.SigningKey = config.Auth.SigningKey
-	srvConfig.Auth.PasswordHashSalt = config.Auth.PasswordHashSalt
-	srvConfig.Auth.TokenTTL = config.Auth.TokenTTL
+	srvConfig.Auth.Addr = config.Auth.Addr
+	srvConfig.Auth.ConnTimeout = config.Auth.ConnTimeout
 	srvConfig.App.MinSearchSymbols = config.App.MinSearchSymbols
 	service := service.NewService(repo, srvConfig)
 

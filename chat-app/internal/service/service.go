@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/1PALADIN1/gigachat_server/internal/entity"
 	"github.com/1PALADIN1/gigachat_server/internal/repository"
 	"github.com/gorilla/websocket"
@@ -51,9 +53,8 @@ type Service struct {
 
 type ServiceConfig struct {
 	Auth struct {
-		SigningKey       string
-		PasswordHashSalt string
-		TokenTTL         int
+		Addr        string
+		ConnTimeout int
 	}
 	App struct {
 		MinSearchSymbols int
@@ -62,7 +63,7 @@ type ServiceConfig struct {
 
 func NewService(repo *repository.Repository, config ServiceConfig) *Service {
 	return &Service{
-		Authorization:  NewAuthService(repo.Authorization, config.Auth.SigningKey, config.Auth.PasswordHashSalt, config.Auth.TokenTTL),
+		Authorization:  NewAuthService(config.Auth.Addr, time.Duration(config.Auth.ConnTimeout)*time.Second),
 		User:           NewUserService(repo.User, config.App.MinSearchSymbols),
 		Chat:           NewChatService(repo.Chat, repo.User),
 		Message:        NewMessageService(repo.Message),

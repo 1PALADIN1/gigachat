@@ -19,9 +19,8 @@ func main() {
 	config.Server.ReadTimeout = viper.GetInt("server.read-timeout")
 	config.Server.WriteTimeout = viper.GetInt("server.write-timeout")
 	//auth
-	config.Auth.SigningKey = os.Getenv("SINGING_KEY")
-	config.Auth.PasswordHashSalt = os.Getenv("PASSWORD_HASH_SALT")
-	config.Auth.TokenTTL = viper.GetInt("auth.token-ttl")
+	config.Auth.Addr = viper.GetString("auth.addr")
+	config.Auth.ConnTimeout = viper.GetInt("auth.conn-timeout")
 	//db
 	config.DB.DSN = os.Getenv("DSN")
 	config.DB.ConnectionTimeout = viper.GetInt("db.connection-timeout")

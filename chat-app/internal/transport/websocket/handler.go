@@ -29,7 +29,7 @@ func NewHandler(service *service.Service) *Handler {
 }
 
 func (h *Handler) SetupRoutes(r *mux.Router) {
-	r.HandleFunc("/ws/{token}", h.setupWsConnection)
+	r.HandleFunc("/ws?token={token}", h.setupWsConnection)
 }
 
 func (h *Handler) setupWsConnection(w http.ResponseWriter, r *http.Request) {

@@ -1,5 +1,8 @@
 server:
-  port: 80
+  grpc-port: 50001
+
+db:
+  connection-timeout: 120
 
 auth:
   token-ttl: 14400

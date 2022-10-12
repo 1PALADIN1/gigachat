@@ -8,3 +8,7 @@ db:
 
 app:
   min-search-symb: 3
+
+auth:
+  addr: 'auth-service:50001'
+  conn-timeout: 2

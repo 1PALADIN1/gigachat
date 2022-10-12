@@ -10,10 +10,7 @@ import (
 
 const (
 	//tables
-	usersTable      = "users"
-	chatsTable      = "chats"
-	usersChatsTable = "users_chats"
-	messagesTable   = "messages"
+	usersTable = "users"
 
 	//db
 	connectInterval = 2 * time.Second
@@ -25,7 +22,7 @@ func NewDB(dsn string, connectionTimeout float64) (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	log.Printf("Trying to connect to database...")
+	log.Println("Trying to connect to database...")
 	startTime := time.Now()
 	var succeed bool
 	for time.Since(startTime).Seconds() < connectionTimeout {

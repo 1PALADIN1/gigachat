@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "/auth";
+
+message User {
+    string username = 1;
+    string password = 2;
+}
+
+message SignUpRequest {
+    User user = 1;
+}
+
+message SignUpResponse {
+    int32 id = 1;
+}
+
+message GenerateTokenRequest {
+    User user = 1;
+}
+
+message GenerateTokenResponse {
+    string token = 1;
+    int32 id = 2;
+}
+
+message ParseTokenRequest {
+    string token = 1;
+}
+
+message ParseTokenResponse {
+    int32 id = 1;
+}
+
+service AuthService {
+    rpc SignUpUser(SignUpRequest) returns (SignUpResponse);
+    rpc GenerateToken(GenerateTokenRequest) returns (GenerateTokenResponse);
+    rpc ParseToken(ParseTokenRequest) returns (ParseTokenResponse);
+}

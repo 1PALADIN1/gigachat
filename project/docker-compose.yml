@@ -9,13 +9,12 @@ services:
       - 8000:80
     depends_on:
       - chat-db
+      - auth-service
     deploy:
       mode: replicated
       replicas: 1
     environment:
       DSN: "host=chat-db port=5432 user=postgres password=123456psql dbname=chat_db sslmode=disable timezone=UTC connect_timeout=5"
-      PASSWORD_HASH_SALT: EXAMPLE_HASH_SALT
-      SINGING_KEY: EXAMPLE_SINGING_KEY
   
   auth-service:
     build:
@@ -26,9 +25,15 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    environment:
+      DSN: "host=chat-db port=5432 user=postgres password=123456psql dbname=chat_db sslmode=disable timezone=UTC connect_timeout=5"
+      PASSWORD_HASH_SALT: EXAMPLE_HASH_SALT
+      SINGING_KEY: EXAMPLE_SINGING_KEY
 
   chat-db:
     image: postgres:latest
+    ports:
+      - "5432:5432"
     volumes:
       - ./.database/postgres/data:/var/lib/postgresql/data
     environment:
