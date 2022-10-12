@@ -106,6 +106,7 @@ func TestHandler_findUserByName(t *testing.T) {
 			// Setup Server
 			r := mux.NewRouter()
 			r.HandleFunc("/api/user/{user}", handler.findUserByName).Methods(http.MethodGet)
+			r.Use(handler.validateAuthHeader)
 
 			// Perform Request
 			w := httptest.NewRecorder()

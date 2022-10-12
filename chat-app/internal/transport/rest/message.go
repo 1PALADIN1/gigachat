@@ -11,11 +11,6 @@ import (
 
 // Получение всех сообщений из чата
 func (h *Handler) getAllChatMessages(w http.ResponseWriter, r *http.Request) {
-	_, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
-	if !ok {
-		return
-	}
-
 	chatId, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		helper.SendErrorResponse(w, http.StatusBadRequest, "invalid input param")

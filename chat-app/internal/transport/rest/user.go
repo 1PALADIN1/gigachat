@@ -1,7 +1,9 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/1PALADIN1/gigachat_server/internal/entity"
 	"github.com/1PALADIN1/gigachat_server/internal/transport/helper"
@@ -10,8 +12,9 @@ import (
 
 // Поиск пользователей по username
 func (h *Handler) findUserByName(w http.ResponseWriter, r *http.Request) {
-	userId, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
-	if !ok {
+	userId, err := strconv.Atoi(mux.Vars(r)["user_id"])
+	if err != nil {
+		helper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("error parsing user id: %s", err.Error()))
 		return
 	}
 

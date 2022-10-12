@@ -19,13 +19,17 @@ func NewHandler(service *service.Service) *Handler {
 
 func (h *Handler) SetupRoutes(r *mux.Router) {
 	//auth
-	r.HandleFunc("/api/auth/sign-up", h.singUpUser).Methods(http.MethodPost)
-	r.HandleFunc("/api/auth/sign-in", h.signInUser).Methods(http.MethodPost)
+	auth := r.PathPrefix("/api/auth").Subrouter()
+	auth.HandleFunc("/sign-up", h.singUpUser).Methods(http.MethodPost)
+	auth.HandleFunc("/sign-in", h.signInUser).Methods(http.MethodPost)
+
+	s := r.PathPrefix("/api").Subrouter()
+	s.Use(h.validateAuthHeader)
 	//chats
-	r.HandleFunc("/api/chat", h.createChat).Methods(http.MethodPost)
-	r.HandleFunc("/api/chat", h.getAllChats).Methods(http.MethodGet)
+	s.HandleFunc("/chat", h.createChat).Methods(http.MethodPost)
+	s.HandleFunc("/chat", h.getAllChats).Methods(http.MethodGet)
 	//messages
-	r.HandleFunc("/api/chat/{id:[0-9]+}/message", h.getAllChatMessages).Methods(http.MethodGet)
+	s.HandleFunc("/chat/{id:[0-9]+}/message", h.getAllChatMessages).Methods(http.MethodGet)
 	//users
-	r.HandleFunc("/api/user/{user}", h.findUserByName).Methods(http.MethodGet)
+	s.HandleFunc("/user/{user}", h.findUserByName).Methods(http.MethodGet)
 }

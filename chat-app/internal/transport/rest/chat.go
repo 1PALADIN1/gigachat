@@ -2,18 +2,17 @@ package rest
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/1PALADIN1/gigachat_server/internal/entity"
 	"github.com/1PALADIN1/gigachat_server/internal/transport/helper"
+	"github.com/gorilla/mux"
 )
 
 // Создание чата (или получение существующего, если такой чат уже существует)
 func (h *Handler) createChat(w http.ResponseWriter, r *http.Request) {
-	_, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
-	if !ok {
-		return
-	}
 	defer r.Body.Close()
 
 	var chat entity.Chat
@@ -40,8 +39,9 @@ func (h *Handler) createChat(w http.ResponseWriter, r *http.Request) {
 
 // Получение всех чатов пользователя
 func (h *Handler) getAllChats(w http.ResponseWriter, r *http.Request) {
-	userId, ok := helper.ValidateAuthHeader(w, r, h.service.Authorization)
-	if !ok {
+	userId, err := strconv.Atoi(mux.Vars(r)["user_id"])
+	if err != nil {
+		helper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("error parsing user id: %s", err.Error()))
 		return
 	}
 

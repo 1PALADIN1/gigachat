@@ -105,6 +105,7 @@ func TestHandler_getAllChatMessages(t *testing.T) {
 			// Setup Server
 			r := mux.NewRouter()
 			r.HandleFunc("/api/chat/{id:[0-9]+}/message", handler.getAllChatMessages).Methods(http.MethodGet)
+			r.Use(handler.validateAuthHeader)
 
 			// Perform Request
 			w := httptest.NewRecorder()

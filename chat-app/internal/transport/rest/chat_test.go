@@ -177,6 +177,7 @@ func TestHandler_createChat(t *testing.T) {
 			// Setup Server
 			r := mux.NewRouter()
 			r.HandleFunc("/api/chat", handler.createChat).Methods(http.MethodPost)
+			r.Use(handler.validateAuthHeader)
 
 			//Perform Request
 			w := httptest.NewRecorder()
@@ -268,6 +269,7 @@ func TestHandler_getAllChats(t *testing.T) {
 			// Setup Server
 			r := mux.NewRouter()
 			r.HandleFunc("/api/chat", handler.getAllChats).Methods(http.MethodGet)
+			r.Use(handler.validateAuthHeader)
 
 			// Perform Request
 			w := httptest.NewRecorder()
