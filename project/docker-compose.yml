@@ -10,6 +10,7 @@ services:
     depends_on:
       - chat-db
       - auth-service
+      - log-service
     deploy:
       mode: replicated
       replicas: 1
@@ -22,6 +23,7 @@ services:
       dockerfile: ./../auth-service/auth-service.dockerfile
     depends_on:
       - chat-db
+      - log-service
     deploy:
       mode: replicated
       replicas: 1
@@ -29,6 +31,14 @@ services:
       DSN: "host=chat-db port=5432 user=postgres password=123456psql dbname=chat_db sslmode=disable timezone=UTC connect_timeout=5"
       PASSWORD_HASH_SALT: EXAMPLE_HASH_SALT
       SINGING_KEY: EXAMPLE_SINGING_KEY
+
+  log-service:
+    build:
+      context: ./../log-service
+      dockerfile: ./../log-service/log-service.dockerfile
+    deploy:
+      mode: replicated
+      replicas: 1
 
   chat-db:
     image: postgres:latest

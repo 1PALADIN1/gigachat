@@ -44,9 +44,11 @@ func Run(config *Config) {
 	service := service.NewService(repo, srvConfig)
 	handler := srv_grpc.NewHandler(service)
 
-	if err := handler.ListenGRPC(config.Server.GRPCPort); err != nil {
-		log.Fatal(err)
-	}
+	go func() {
+		if err := handler.ListenGRPC(config.Server.GRPCPort); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	log.Println("AuthService started")
 	quit := make(chan os.Signal, 1)
