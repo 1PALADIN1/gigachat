@@ -1,0 +1,19 @@
+server:
+  port: 80
+  read-timeout: 10
+  write-timeout: 10
+
+db:
+  connection-timeout: 120
+
+app:
+  min-search-symb: 3
+
+auth:
+  addr: 'auth-service:50001'
+  conn-timeout: 2
+
+log:
+  addr: 'log-service:50001'
+  conn-timeout: 2
+  source: ChatApp

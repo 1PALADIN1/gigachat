@@ -1,0 +1,13 @@
+server:
+  grpc-port: 50001
+
+db:
+  connection-timeout: 120
+
+auth:
+  token-ttl: 14400
+
+log:
+  addr: 'log-service:50001'
+  conn-timeout: 2
+  source: AuthService

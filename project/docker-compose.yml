@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  chat-app:
+    build:
+      context: ./../chat-app
+      dockerfile: ./../chat-app/chat-app.dockerfile
+    ports:
+      - 8000:80
+    depends_on:
+      - chat-db
+      - auth-service
+      - log-service
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DSN: "host=chat-db port=5432 user=postgres password=123456psql dbname=chat_db sslmode=disable timezone=UTC connect_timeout=5"
+  
+  auth-service:
+    build:
+      context: ./../auth-service
+      dockerfile: ./../auth-service/auth-service.dockerfile
+    depends_on:
+      - chat-db
+      - log-service
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DSN: "host=chat-db port=5432 user=postgres password=123456psql dbname=chat_db sslmode=disable timezone=UTC connect_timeout=5"
+      PASSWORD_HASH_SALT: EXAMPLE_HASH_SALT
+      SINGING_KEY: EXAMPLE_SINGING_KEY
+
+  log-service:
+    build:
+      context: ./../log-service
+      dockerfile: ./../log-service/log-service.dockerfile
+    depends_on:
+      - logs-db
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      DSN: "root:123456mysql@tcp(logs-db:3306)/logs_db"
+
+  chat-db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.database/postgres/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456psql
+      POSTGRES_DB: chat_db
+    deploy:
+      mode: replicated
+      replicas: 1
+  
+  logs-db:
+    image: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./.database/mysql/data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456mysql
+      MYSQL_DATABASE: logs_db
+    deploy:
+      mode: replicated
+      replicas: 1

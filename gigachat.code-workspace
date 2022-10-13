@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "chat-app"
+		},
+		{
+			"path": "project"
+		},
+		{
+			"path": "auth-service"
+		},
+		{
+			"path": "log-service"
+		}
+	],
+	"settings": {}
+}
