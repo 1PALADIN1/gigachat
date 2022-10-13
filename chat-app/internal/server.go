@@ -1,11 +1,12 @@
-package internal
+package app
 
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
+
+	"github.com/1PALADIN1/gigachat_server/internal/logger"
 )
 
 type Server struct {
@@ -21,7 +22,7 @@ type ServerConfig struct {
 }
 
 func NewServer(config ServerConfig) *Server {
-	log.Printf("Setup server at port %d. Read timeout: %d [sec], write timout: %d [sec]\n", config.Port, config.ReadTimeout, config.WriteTimeout)
+	logger.LogInfo(fmt.Sprintf("Setup server at port %d. Read timeout: %d [sec], write timout: %d [sec]", config.Port, config.ReadTimeout, config.WriteTimeout))
 
 	server := new(Server)
 	server.httpServer = &http.Server{
@@ -36,11 +37,11 @@ func NewServer(config ServerConfig) *Server {
 }
 
 func (s *Server) Start() error {
-	log.Println("Starting server...")
+	logger.LogInfo("Starting server...")
 	return s.httpServer.ListenAndServe()
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {
-	log.Println("Shutting down server...")
+	logger.LogInfo("Shutting down server...")
 	return s.httpServer.Shutdown(ctx)
 }

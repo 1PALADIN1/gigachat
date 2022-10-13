@@ -1,14 +1,13 @@
-// Стартовая точка приложения.
-// Здесь создаются основные сущности, строятся зависимости.
-package internal
+package app
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/1PALADIN1/gigachat_server/internal/logger"
 	"github.com/1PALADIN1/gigachat_server/internal/service"
 	"github.com/gorilla/mux"
 
@@ -32,6 +31,11 @@ type Config struct {
 		Addr        string
 		ConnTimeout int
 	}
+	Log struct {
+		Addr        string
+		ConnTimeout int
+		Source      string
+	}
 	DB struct {
 		DSN               string
 		ConnectionTimeout int
@@ -42,10 +46,21 @@ type Config struct {
 }
 
 func Run(config *Config) {
+	if err := logger.Setup(config.Log.Addr, config.Log.Source, config.Log.ConnTimeout); err != nil {
+		logger.LogError(fmt.Sprintf("log service is unavailable: %s", err.Error()))
+		os.Exit(1)
+	}
+
 	db, err := setupDB(config)
 	if err != nil {
-		log.Fatalf("error connecting to database: %s", err.Error())
+		logger.LogError(fmt.Sprintf("error connecting to database: %s", err.Error()))
+		os.Exit(1)
 	}
+	defer func() {
+		if err := db.Close(); err != nil {
+			logger.LogError(fmt.Sprintf("error closing db: %s", err.Error()))
+		}
+	}()
 
 	repo := repository.NewRepository(db)
 
@@ -58,11 +73,11 @@ func Run(config *Config) {
 	server := setupServer(config, service)
 	go func() {
 		if err := server.Start(); err != nil {
-			log.Fatal(err)
+			logger.LogError(err.Error())
 		}
 	}()
 
-	log.Println("ChatApp started")
+	logger.LogInfo("ChatApp started")
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 
@@ -97,15 +112,10 @@ func setupServer(config *Config, service *service.Service) *Server {
 }
 
 func stopServer(server *Server, db *sqlx.DB, service *service.Service) {
-	log.Println("ChatApp shutting down")
-
+	logger.LogInfo("ChatApp shutting down")
 	service.UserConnection.CloseAllConnections()
 
 	if err := server.Shutdown(context.Background()); err != nil {
-		log.Printf("error shutting down server: %s", err.Error())
-	}
-
-	if err := db.Close(); err != nil {
-		log.Printf("error closing db: %s", err.Error())
+		logger.LogError(fmt.Sprintf("error shutting down server: %s", err.Error()))
 	}
 }

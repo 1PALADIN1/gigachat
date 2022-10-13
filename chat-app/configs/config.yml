@@ -12,3 +12,8 @@ app:
 auth:
   addr: 'auth-service:50001'
   conn-timeout: 2
+
+log:
+  addr: 'log-service:50001'
+  conn-timeout: 2
+  source: ChatApp

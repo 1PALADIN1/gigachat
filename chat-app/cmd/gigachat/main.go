@@ -21,6 +21,10 @@ func main() {
 	//auth
 	config.Auth.Addr = viper.GetString("auth.addr")
 	config.Auth.ConnTimeout = viper.GetInt("auth.conn-timeout")
+	// log
+	config.Log.Addr = viper.GetString("log.addr")
+	config.Log.ConnTimeout = viper.GetInt("log.conn-timeout")
+	config.Log.Source = viper.GetString("log.source")
 	//db
 	config.DB.DSN = os.Getenv("DSN")
 	config.DB.ConnectionTimeout = viper.GetInt("db.connection-timeout")

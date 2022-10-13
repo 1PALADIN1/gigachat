@@ -1,9 +1,10 @@
 package postgres
 
 import (
-	"log"
+	"fmt"
 	"time"
 
+	"github.com/1PALADIN1/gigachat_server/internal/logger"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -25,7 +26,7 @@ func NewDB(dsn string, connectionTimeout float64) (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	log.Printf("Trying to connect to database...")
+	logger.LogInfo("Trying to connect to database...")
 	startTime := time.Now()
 	var succeed bool
 	for time.Since(startTime).Seconds() < connectionTimeout {
@@ -35,7 +36,7 @@ func NewDB(dsn string, connectionTimeout float64) (*sqlx.DB, error) {
 			break
 		}
 
-		log.Printf("failed connect: %s", err.Error())
+		logger.LogInfo(fmt.Sprintf("failed connect: %s", err.Error()))
 		time.Sleep(connectInterval)
 	}
 
@@ -43,6 +44,6 @@ func NewDB(dsn string, connectionTimeout float64) (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	log.Printf("Connected to database!")
+	logger.LogInfo("Connected to database!")
 	return db, err
 }

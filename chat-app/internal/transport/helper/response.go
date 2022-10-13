@@ -2,8 +2,10 @@ package helper
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
+
+	"github.com/1PALADIN1/gigachat_server/internal/logger"
 )
 
 type errorResponse struct {
@@ -11,14 +13,14 @@ type errorResponse struct {
 }
 
 func SendErrorResponse(w http.ResponseWriter, statusCode int, message string) {
-	log.Println("sending error:", message)
+	logger.LogInfo(fmt.Sprintf("sending error: %s", message))
 	SendResponse(w, statusCode, errorResponse{message})
 }
 
 func SendResponse(w http.ResponseWriter, statusCode int, message any) {
 	resp, err := json.Marshal(message)
 	if err != nil {
-		log.Println("error marshaling response:", err.Error())
+		logger.LogError(fmt.Sprintf("error marshaling response: %s", err.Error()))
 		return
 	}
 

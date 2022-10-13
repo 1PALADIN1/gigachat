@@ -1,9 +1,10 @@
 package websocket
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 
+	"github.com/1PALADIN1/gigachat_server/internal/logger"
 	"github.com/1PALADIN1/gigachat_server/internal/service"
 	"github.com/1PALADIN1/gigachat_server/internal/transport/helper"
 	"github.com/gorilla/mux"
@@ -29,7 +30,7 @@ func NewHandler(service *service.Service) *Handler {
 }
 
 func (h *Handler) SetupRoutes(r *mux.Router) {
-	r.HandleFunc("/ws?token={token}", h.setupWsConnection)
+	r.HandleFunc("/ws/{token}", h.setupWsConnection)
 }
 
 func (h *Handler) setupWsConnection(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +43,7 @@ func (h *Handler) setupWsConnection(w http.ResponseWriter, r *http.Request) {
 
 	connection, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("error in connection:", err)
+		logger.LogError(fmt.Sprintf("error in connection: %s", err.Error()))
 		return
 	}
 
