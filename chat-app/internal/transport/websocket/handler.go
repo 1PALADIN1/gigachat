@@ -47,8 +47,5 @@ func (h *Handler) setupWsConnection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go func() {
-		defer connection.Close()
-		h.handleUserMessages(connection, userId)
-	}()
+	h.handleUserMessages(connection, userId)
 }

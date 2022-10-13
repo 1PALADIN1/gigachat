@@ -11,6 +11,8 @@ import (
 
 // handleUserMessages обработчик входящих websocket соединений
 func (h *Handler) handleUserMessages(connection *websocket.Conn, userId int) {
+	defer connection.Close()
+
 	user, err := h.service.GetUserById(userId)
 	if err != nil {
 		logger.LogError(fmt.Sprintf("user with id %d is not found", userId))

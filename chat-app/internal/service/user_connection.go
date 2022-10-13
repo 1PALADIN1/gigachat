@@ -3,24 +3,45 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"sync"
 
 	"github.com/1PALADIN1/gigachat_server/internal/logger"
 	"github.com/1PALADIN1/gigachat_server/internal/repository"
 	"github.com/gorilla/websocket"
 )
 
+type addUserInfo struct {
+	userId     int
+	connection *websocket.Conn
+}
+
+type notificationInfo struct {
+	notification NotificationMessage
+	message      []byte
+}
+
 type UserConnectionService struct {
-	mx          sync.Mutex
 	activeUsers map[int]*websocket.Conn
 	chatRepo    repository.Chat
+
+	// channels
+	notifyUsers      chan notificationInfo
+	addUser          chan addUserInfo
+	removeUser       chan int
+	closeConnections chan bool
 }
 
 func NewUserConnectionService(chatRepo repository.Chat) *UserConnectionService {
-	return &UserConnectionService{
-		activeUsers: make(map[int]*websocket.Conn),
-		chatRepo:    chatRepo,
+	srv := &UserConnectionService{
+		activeUsers:      make(map[int]*websocket.Conn),
+		chatRepo:         chatRepo,
+		notifyUsers:      make(chan notificationInfo),
+		addUser:          make(chan addUserInfo),
+		removeUser:       make(chan int),
+		closeConnections: make(chan bool),
 	}
+
+	go srv.listenChannels()
+	return srv
 }
 
 type NotificationResponse struct {
@@ -40,13 +61,9 @@ func (s *UserConnectionService) NotifyActiveUsers(notification NotificationMessa
 		return err
 	}
 
-	defer s.mx.Unlock()
-	s.mx.Lock()
-
-	for _, userId := range notification.Users {
-		if conn, ok := s.activeUsers[userId]; ok {
-			conn.WriteMessage(notification.MessageType, message)
-		}
+	s.notifyUsers <- notificationInfo{
+		notification: notification,
+		message:      message,
 	}
 
 	return nil
@@ -54,30 +71,49 @@ func (s *UserConnectionService) NotifyActiveUsers(notification NotificationMessa
 
 // AddUserInActiveList добавляет пользователя в список онлайн
 func (s *UserConnectionService) AddUserInActiveList(userId int, connection *websocket.Conn) {
-	defer s.mx.Unlock()
-	s.mx.Lock()
-	s.activeUsers[userId] = connection
+	s.addUser <- addUserInfo{
+		userId:     userId,
+		connection: connection,
+	}
 }
 
-// RemoveUserFromActiveList удаляет пользователя в списка онлайн
+// RemoveUserFromActiveList удаляет пользователя из списка онлайн
 func (s *UserConnectionService) RemoveUserFromActiveList(userId int) {
-	defer s.mx.Unlock()
-	s.mx.Lock()
-
-	_, ok := s.activeUsers[userId]
-	if ok {
-		delete(s.activeUsers, userId)
-	}
+	s.removeUser <- userId
 }
 
 // CloseAllConnections закрывает все пользовательские соединения
 func (s *UserConnectionService) CloseAllConnections() {
-	defer s.mx.Unlock()
-	s.mx.Lock()
+	s.closeConnections <- true
+}
 
-	for id, conn := range s.activeUsers {
-		if err := conn.Close(); err != nil {
-			logger.LogError(fmt.Sprintf("error closing user [%d] connection: %s\n", id, err.Error()))
+func (s *UserConnectionService) listenChannels() {
+	for {
+		select {
+		case info := <-s.notifyUsers:
+			for _, userId := range info.notification.Users {
+				if conn, ok := s.activeUsers[userId]; ok {
+					conn.WriteMessage(info.notification.MessageType, info.message)
+				}
+			}
+
+		case user := <-s.addUser:
+			s.activeUsers[user.userId] = user.connection
+
+		case userId := <-s.removeUser:
+			_, ok := s.activeUsers[userId]
+			if ok {
+				delete(s.activeUsers, userId)
+			}
+
+		case <-s.closeConnections:
+			for id, conn := range s.activeUsers {
+				if err := conn.Close(); err != nil {
+					logger.LogError(fmt.Sprintf("error closing user [%d] connection: %s\n", id, err.Error()))
+				}
+			}
+
+			return
 		}
 	}
 }
