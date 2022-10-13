@@ -36,9 +36,13 @@ services:
     build:
       context: ./../log-service
       dockerfile: ./../log-service/log-service.dockerfile
+    depends_on:
+      - logs-db
     deploy:
       mode: replicated
       replicas: 1
+    environment:
+      DSN: "root:123456mysql@tcp(logs-db:3306)/logs_db"
 
   chat-db:
     image: postgres:latest
@@ -50,6 +54,20 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456psql
       POSTGRES_DB: chat_db
+    deploy:
+      mode: replicated
+      replicas: 1
+  
+  logs-db:
+    image: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./.database/mysql/data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456mysql
+      MYSQL_DATABASE: logs_db
     deploy:
       mode: replicated
       replicas: 1
