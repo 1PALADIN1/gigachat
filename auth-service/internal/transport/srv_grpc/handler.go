@@ -2,9 +2,9 @@ package srv_grpc
 
 import (
 	"fmt"
-	"log"
 	"net"
 
+	"github.com/1PALADIN1/gigachat_server/auth/internal/logger"
 	"github.com/1PALADIN1/gigachat_server/auth/internal/service"
 	"github.com/1PALADIN1/gigachat_server/auth/internal/transport/srv_grpc/auth"
 	"google.golang.org/grpc"
@@ -33,7 +33,7 @@ func (h *Handler) ListenGRPC(portNumber int) error {
 	}
 	auth.RegisterAuthServiceServer(s, authServer)
 
-	log.Println("gRPC server started at port", portNumber)
+	logger.LogInfo(fmt.Sprintf("gRPC server started at port %d", portNumber))
 
 	if err := s.Serve(listener); err != nil {
 		return fmt.Errorf("error serving grpc server: %s", err.Error())

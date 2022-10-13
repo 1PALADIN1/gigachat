@@ -14,7 +14,7 @@ type LogServer struct {
 
 // Log логирует сообщения
 func (s *LogServer) Log(ctx context.Context, rq *logs.LogRequest) (*logs.LogResponse, error) {
-	if err := s.service.Log(rq.LogLevel, rq.Message); err != nil {
+	if err := s.service.Log(rq.LogLevel, rq.Message, rq.Source); err != nil {
 		return nil, err
 	}
 

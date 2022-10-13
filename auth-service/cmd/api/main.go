@@ -20,6 +20,10 @@ func main() {
 	config.Auth.SigningKey = os.Getenv("SINGING_KEY")
 	config.Auth.PasswordHashSalt = os.Getenv("PASSWORD_HASH_SALT")
 	config.Auth.TokenTTL = viper.GetInt("auth.token-ttl")
+	// log
+	config.Log.Addr = viper.GetString("log.addr")
+	config.Log.ConnTimeout = viper.GetInt("log.conn-timeout")
+	config.Log.Source = viper.GetString("log.source")
 	// db
 	config.DB.DSN = os.Getenv("DSN")
 	config.DB.ConnectionTimeout = viper.GetInt("db.connection-timeout")

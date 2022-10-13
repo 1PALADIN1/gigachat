@@ -1,11 +1,12 @@
-package internal
+package app
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/1PALADIN1/gigachat_server/auth/internal/logger"
 	"github.com/1PALADIN1/gigachat_server/auth/internal/repository"
 	"github.com/1PALADIN1/gigachat_server/auth/internal/repository/postgres"
 	"github.com/1PALADIN1/gigachat_server/auth/internal/service"
@@ -22,6 +23,11 @@ type Config struct {
 		PasswordHashSalt string
 		TokenTTL         int
 	}
+	Log struct {
+		Addr        string
+		ConnTimeout int
+		Source      string
+	}
 	DB struct {
 		DSN               string
 		ConnectionTimeout int
@@ -29,14 +35,19 @@ type Config struct {
 }
 
 func Run(config *Config) {
+	logger.Setup(config.Log.Addr, config.Log.Source, config.Log.ConnTimeout)
+
 	db, err := setupDB(config)
 	if err != nil {
-		log.Fatalf("error connecting to database: %s", err.Error())
+		logger.LogError(fmt.Sprintf("error connecting to database: %s", err.Error()))
+		os.Exit(1)
 	}
+	defer stopService(db)
 
 	repo := repository.NewRepository(db)
 
 	srvConfig := service.ServiceConfig{}
+	// auth
 	srvConfig.Auth.SigningKey = config.Auth.SigningKey
 	srvConfig.Auth.PasswordHashSalt = config.Auth.PasswordHashSalt
 	srvConfig.Auth.TokenTTL = config.Auth.TokenTTL
@@ -46,16 +57,16 @@ func Run(config *Config) {
 
 	go func() {
 		if err := handler.ListenGRPC(config.Server.GRPCPort); err != nil {
-			log.Fatal(err)
+			logger.LogError(err.Error())
+			os.Exit(1)
 		}
 	}()
 
-	log.Println("AuthService started")
+	logger.LogInfo("AuthService started")
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 
 	<-quit
-	stopService(db)
 }
 
 func setupDB(config *Config) (*sqlx.DB, error) {
@@ -68,9 +79,9 @@ func setupDB(config *Config) (*sqlx.DB, error) {
 }
 
 func stopService(db *sqlx.DB) {
-	log.Println("AuthService shutting down")
+	logger.LogInfo("AuthService shutting down")
 
 	if err := db.Close(); err != nil {
-		log.Printf("error closing db: %s", err.Error())
+		logger.LogError(fmt.Sprintf("error closing db: %s", err.Error()))
 	}
 }

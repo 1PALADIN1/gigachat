@@ -6,3 +6,8 @@ db:
 
 auth:
   token-ttl: 14400
+
+log:
+  addr: 'log-service:50001'
+  conn-timeout: 2
+  source: AuthService
