@@ -18,7 +18,7 @@ func NewChatPostgres(db *sqlx.DB) *ChatPostgres {
 	return &ChatPostgres{db}
 }
 
-// Пытается найти существующий чат по указанному набору пользователей
+// GetChatIdByUsers пытается найти существующий чат по указанному набору пользователей
 // Возвращает id чата в случае успеха
 func (r *ChatPostgres) GetChatIdByUsers(userIds []int) (int, bool, error) {
 	if len(userIds) == 0 {
@@ -68,7 +68,7 @@ func (r *ChatPostgres) GetChatIdByUsers(userIds []int) (int, bool, error) {
 	return 0, false, rows.Err()
 }
 
-// Создаёт новый чат и возвращает id чата в случае успеха
+// CreateChat создаёт новый чат и возвращает id чата в случае успеха
 func (r *ChatPostgres) CreateChat(chat entity.Chat) (int, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -94,7 +94,7 @@ func (r *ChatPostgres) CreateChat(chat entity.Chat) (int, error) {
 	return chatId, tx.Commit()
 }
 
-// Получение списка чатов пользователя
+// GetAllChats получение списка чатов пользователя
 func (r *ChatPostgres) GetAllChats(userId int) ([]entity.ChatResponse, error) {
 	var chats []entity.ChatResponse
 	query := fmt.Sprintf(`SELECT c.id, c.title, c.description, t2.send_date_time, t2.message, t2.user_id, u.username FROM %s us
@@ -119,7 +119,7 @@ func (r *ChatPostgres) GetAllChats(userId int) ([]entity.ChatResponse, error) {
 	return chats, nil
 }
 
-// Получение пользователей из указанного чата
+// GetUserIdsByChatId получение пользователей из указанного чата
 func (r *ChatPostgres) GetUserIdsByChatId(chatId int) ([]int, error) {
 	var userIds []int
 	query := fmt.Sprintf(`SELECT user_id FROM %s

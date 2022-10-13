@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Получение всех сообщений из чата
+// getAllChatMessages получение всех сообщений из чата
 func (h *Handler) getAllChatMessages(w http.ResponseWriter, r *http.Request) {
 	chatId, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {

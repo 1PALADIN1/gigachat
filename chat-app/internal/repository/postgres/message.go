@@ -16,7 +16,7 @@ func NewMessagePostgress(db *sqlx.DB) *MessagePostgress {
 	return &MessagePostgress{db}
 }
 
-// Добавляет сообщение в указанный чат
+// AddMessageToChat добавляет сообщение в указанный чат
 func (r *MessagePostgress) AddMessageToChat(userId, chatId int, message string, sendTime time.Time) (entity.Message, error) {
 	var resMessage entity.Message
 	var messageId int
@@ -46,7 +46,7 @@ func (r *MessagePostgress) AddMessageToChat(userId, chatId int, message string, 
 	return resMessage, nil
 }
 
-// Получение всех сообщений из указанного чата
+// GetAllMessages получение всех сообщений из указанного чата
 func (r *MessagePostgress) GetAllMessages(chatId int) ([]entity.Message, error) {
 	var messages []entity.Message
 	query := fmt.Sprintf(`SELECT m.id, m.send_date_time, m.message, m.user_id, m.chat_id, u.username FROM %s m

@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// handleUserMessages обработчик входящих websocket соединений
 func (h *Handler) handleUserMessages(connection *websocket.Conn, userId int) {
 	user, err := h.service.GetUserById(userId)
 	if err != nil {

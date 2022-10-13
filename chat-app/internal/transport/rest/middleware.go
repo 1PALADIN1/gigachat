@@ -14,6 +14,7 @@ const (
 	authorizationHeader = "Authorization"
 )
 
+// validateAuthHeader валидация заголовка входящего запроса
 func (h *Handler) validateAuthHeader(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 

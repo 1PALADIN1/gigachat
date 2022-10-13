@@ -17,13 +17,13 @@ func NewMessageService(messageRepo repository.Message) *MessageService {
 	}
 }
 
-// Добавляет сообщение в указанный чат
+// AddMessageToChat добавляет сообщение в указанный чат
 func (s *MessageService) AddMessageToChat(userId, chatId int, message string) (entity.Message, error) {
 	sendTime := time.Now().UTC()
 	return s.messageRepo.AddMessageToChat(userId, chatId, message, sendTime)
 }
 
-// Получение всех сообщений из указанного чата
+// GetAllMessages получение всех сообщений из указанного чата
 func (s *MessageService) GetAllMessages(chatId int) ([]entity.Message, error) {
 	return s.messageRepo.GetAllMessages(chatId)
 }

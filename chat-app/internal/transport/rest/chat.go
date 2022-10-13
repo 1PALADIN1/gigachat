@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Создание чата (или получение существующего, если такой чат уже существует)
+// createChat создание чата (или получение существующего, если такой чат уже существует)
 func (h *Handler) createChat(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -37,7 +37,7 @@ func (h *Handler) createChat(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Получение всех чатов пользователя
+// getAllChats получение всех чатов пользователя
 func (h *Handler) getAllChats(w http.ResponseWriter, r *http.Request) {
 	userId, err := strconv.Atoi(mux.Vars(r)["user_id"])
 	if err != nil {

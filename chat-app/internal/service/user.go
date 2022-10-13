@@ -20,13 +20,13 @@ func NewUserService(repo repository.User, minSearchSymbols int) *UserService {
 	}
 }
 
-// Ищет пользователя по id
+// GetUserById ищет пользователя по id
 // Возвращает структуру пользователя в случае успеха
 func (s *UserService) GetUserById(id int) (entity.User, error) {
 	return s.repo.GetUserById(id)
 }
 
-// Ищет пользователей по username (исключаем текущего пользователя)
+// FindUserByName ищет пользователей по username (исключаем текущего пользователя)
 func (s *UserService) FindUserByName(filter string, currentUserId int) ([]entity.User, error) {
 	if len(strings.TrimSpace(filter)) < s.minSearchSymbols {
 		return nil, fmt.Errorf("requires min %d symbols to perfom searching", s.minSearchSymbols)

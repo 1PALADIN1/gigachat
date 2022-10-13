@@ -15,7 +15,7 @@ func NewUserPostgres(db *sqlx.DB) *UserPostgres {
 	return &UserPostgres{db}
 }
 
-// Ищет пользователя по указанному id
+// GetUserById ищет пользователя по указанному id
 func (r *UserPostgres) GetUserById(id int) (entity.User, error) {
 	var user entity.User
 	query := fmt.Sprintf(`SELECT id, username FROM %s WHERE id=$1`, usersTable)
@@ -23,7 +23,7 @@ func (r *UserPostgres) GetUserById(id int) (entity.User, error) {
 	return user, err
 }
 
-// Ищет пользователей по username (исключаем текущего пользователя)
+// FindUserByName ищет пользователей по username (исключаем текущего пользователя)
 func (r *UserPostgres) FindUserByName(filter string, currentUserId int) ([]entity.User, error) {
 	var users []entity.User
 	query := fmt.Sprintf(`SELECT id, username FROM %s 

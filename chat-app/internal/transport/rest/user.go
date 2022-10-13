@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Поиск пользователей по username
+// findUserByName поиск пользователей по username
 func (h *Handler) findUserByName(w http.ResponseWriter, r *http.Request) {
 	userId, err := strconv.Atoi(mux.Vars(r)["user_id"])
 	if err != nil {

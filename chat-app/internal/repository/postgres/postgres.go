@@ -20,6 +20,7 @@ const (
 	connectInterval = 2 * time.Second
 )
 
+// NewDB создаёт подключение к Postgres и тестирует соединение
 func NewDB(dsn string, connectionTimeout float64) (*sqlx.DB, error) {
 	db, err := sqlx.Open("postgres", dsn)
 	if err != nil {

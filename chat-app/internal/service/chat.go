@@ -19,7 +19,7 @@ func NewChatService(chatRepo repository.Chat, userRepo repository.User) *ChatSer
 	}
 }
 
-// Ищет или создаёт новый чат для пользователей
+// GetOrCreateChat ищет или создаёт новый чат для пользователей
 func (s *ChatService) GetOrCreateChat(chat entity.Chat) (int, error) {
 	for _, userId := range chat.UserIds {
 		if _, err := s.userRepo.GetUserById(userId); err != nil {
@@ -45,7 +45,7 @@ func (s *ChatService) GetOrCreateChat(chat entity.Chat) (int, error) {
 	return chatId, nil
 }
 
-// Получение списка чатов пользователя
+// GetAllChats получение списка чатов пользователя
 func (s *ChatService) GetAllChats(userId int) ([]entity.ChatResponse, error) {
 	return s.chatRepo.GetAllChats(userId)
 }
