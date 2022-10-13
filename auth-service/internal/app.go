@@ -35,7 +35,10 @@ type Config struct {
 }
 
 func Run(config *Config) {
-	logger.Setup(config.Log.Addr, config.Log.Source, config.Log.ConnTimeout)
+	if err := logger.Setup(config.Log.Addr, config.Log.Source, config.Log.ConnTimeout); err != nil {
+		logger.LogError(fmt.Sprintf("log service is unavailable: %s", err.Error()))
+		os.Exit(1)
+	}
 
 	db, err := setupDB(config)
 	if err != nil {

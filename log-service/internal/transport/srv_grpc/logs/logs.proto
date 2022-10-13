@@ -13,6 +13,13 @@ message LogRequest {
 message LogResponse {
 }
 
+message PingRequest {
+}
+
+message PingResponse {
+}
+
 service LogService {
     rpc Log(LogRequest) returns (LogResponse);
+    rpc Ping(PingRequest) returns (PingResponse);
 }

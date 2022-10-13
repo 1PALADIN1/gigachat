@@ -20,3 +20,8 @@ func (s *LogServer) Log(ctx context.Context, rq *logs.LogRequest) (*logs.LogResp
 
 	return &logs.LogResponse{}, nil
 }
+
+// Ping пинг сервиса
+func (s *LogServer) Ping(ctx context.Context, rq *logs.PingRequest) (*logs.PingResponse, error) {
+	return &logs.PingResponse{}, nil
+}
